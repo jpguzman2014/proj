@@ -15,6 +15,8 @@ export default function StatsPage() {
   const votes = difficultyVotes();
   const available = storageAvailable();
 
+  // Saving a file needs a real browser tab. The preview build hides the control
+  // rather than offering one that silently does nothing.
   const exportReports = () => {
     const blob = new Blob([JSON.stringify(reports, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -122,11 +124,13 @@ export default function StatsPage() {
                 </li>
               ))}
             </ul>
-            <div className="row">
-              <button className="btn" type="button" onClick={exportReports}>
-                Export reports as a file
-              </button>
-            </div>
+            {!import.meta.env.VITE_DEMO && (
+              <div className="row">
+                <button className="btn" type="button" onClick={exportReports}>
+                  Export reports as a file
+                </button>
+              </div>
+            )}
           </>
         )}
       </section>

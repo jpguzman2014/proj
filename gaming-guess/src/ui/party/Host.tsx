@@ -196,9 +196,17 @@ export default function Host() {
             {questions.length} questions ready from the current filters.
           </p>
 
-          <button className="btn btn-primary btn-block" type="button" onClick={createRoom}>
-            Create room
-          </button>
+          {import.meta.env.VITE_DEMO ? (
+            <p className="verdict no">
+              <strong>Not available in this preview.</strong> Party mode needs the room
+              server running, and a single-file preview has nowhere to run it. Everything
+              else on this page works, and the solo modes are fully playable.
+            </p>
+          ) : (
+            <button className="btn btn-primary btn-block" type="button" onClick={createRoom}>
+              Create room
+            </button>
+          )}
           {status === 'error' && (
             <p className="verdict no" role="status">
               Could not reach the room server at {roomServerUrl()}. Start it with{' '}

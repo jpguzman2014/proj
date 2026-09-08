@@ -15,7 +15,8 @@ createRoot(container).render(
 
 // The service worker only caches this app's own files, so the game keeps
 // working offline. It never contacts a third party.
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
+// The single-file preview build has no separate sw.js to register.
+if ('serviceWorker' in navigator && import.meta.env.PROD && !import.meta.env.VITE_DEMO) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {
       /* offline support is optional; a failure must not break play */
