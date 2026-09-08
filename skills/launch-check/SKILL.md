@@ -93,6 +93,21 @@ Detail: `references/claims-and-content.md`
 - **Check local laws** — the applicable regime follows the customers, not the server.
   Identify the jurisdictions in scope and note the extra duties each one adds.
 
+## Installing the standard into a project
+
+When a project should hold to this permanently, not just pass one audit, install it
+there. This needs no clone and no script; the files ship with this skill.
+
+1. Copy `assets/CHECKLIST.md` to the project root as `CHECKLIST.md`, so audit state is
+   tracked in version control. Leave it alone if one already exists.
+2. Append the contents of `assets/PRINCIPLE.md` to the project's `CLAUDE.md`, or create
+   that file from it if there is none. Skip this if the file already mentions Launch
+   Check.
+
+Do this for projects that ship a public-facing site. Skip it for libraries, CLIs, and
+internal services; policy-page reminders in a library repo are noise, and noise trains
+people to skim past the file when it matters.
+
 ## Reporting
 
 Produce a table of the 19 items with pass, fail, or needs owner input, then group the

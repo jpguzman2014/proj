@@ -42,7 +42,7 @@ fi
 
 # 3. The principle, so it holds while code is being written.
 if [[ ! -e "$TARGET/CLAUDE.md" ]]; then
-  cp "$SRC/CLAUDE.md" "$TARGET/CLAUDE.md"
+  cp "$SRC/skills/launch-check/assets/PRINCIPLE.md" "$TARGET/CLAUDE.md"
   echo "installed  CLAUDE.md"
 elif grep -q "Launch Check" "$TARGET/CLAUDE.md"; then
   echo "kept       CLAUDE.md (already references Launch Check)"
@@ -51,7 +51,7 @@ else
     echo
     echo "---"
     echo
-    cat "$SRC/CLAUDE.md"
+    cat "$SRC/skills/launch-check/assets/PRINCIPLE.md"
   } >> "$TARGET/CLAUDE.md"
   echo "appended   CLAUDE.md"
 fi

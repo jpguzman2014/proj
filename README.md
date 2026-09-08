@@ -22,39 +22,43 @@ necessary data, third-party embeds.
 **Honest content** — remove fake reviews, remove unsupported claims, image copyright,
 check local laws.
 
-## Use it in this repo
+## Use it on your projects
 
-The skill is already active here. Ask for an audit in plain language, or invoke it:
-
-```
-/launch-check
-```
-
-## Apply it to an existing project
-
-```bash
-./scripts/apply-to-project.sh /path/to/project
-```
-
-That copies the skill into `.claude/skills/launch-check`, drops a `CHECKLIST.md` to
-track audit state, and adds the working principle to the project's `CLAUDE.md`, creating
-it or appending to it. Re-running refreshes the skill and leaves your edits alone.
-
-## Apply it to every future project
-
-Install it once as a plugin and it is available everywhere, with no per-project copying:
+Install once. It is then available in every project on that machine, current and future,
+with nothing copied into any repo:
 
 ```bash
 claude plugin marketplace add jpguzman2014/proj
 claude plugin install launch-check@jpguzman2014
 ```
 
-Updates then reach every project through `claude plugin update launch-check`.
+Then in any project, ask for an audit in plain language or run:
 
-Use the plugin for the audit skill itself, and `apply-to-project.sh` when a repo should
-also carry the checklist and the principle in its own `CLAUDE.md`. The two are
-complementary: the plugin gives Claude the procedure, and `CLAUDE.md` makes the
-standard hold while code is being written rather than only at launch.
+```
+/launch-check
+```
+
+Updates reach every project later through `claude plugin update launch-check`.
+
+## Make it stick in one project
+
+The plugin gives Claude the procedure. A project that ships a public site should also
+carry the standard in its own `CLAUDE.md`, so it applies while code is written rather
+than only at launch. With the plugin installed, ask Claude in that project to install
+the launch check standard; the skill has the files and will write them.
+
+If you have this repo cloned, the same thing runs as one command:
+
+```bash
+./scripts/apply-to-project.sh /path/to/project
+```
+
+It installs the skill, a `CHECKLIST.md` to track audit state, and the principle,
+creating `CLAUDE.md` or appending to it. Re-running refreshes the skill and leaves your
+edits alone.
+
+Skip this for libraries, CLIs, and internal services. Policy-page reminders in a library
+repo are noise, and noise trains you to skim past the file when it matters.
 
 ## Layout
 
@@ -70,7 +74,8 @@ skills/launch-check/
     privacy-data.md         consent, tracking inventory, embeds, minimisation
     claims-and-content.md   fake reviews, substantiation, licensing, jurisdictions
   assets/CHECKLIST.md       trackable copy of the 19 items
-CLAUDE.md                   the standard applied while building
+  assets/PRINCIPLE.md       the standard applied while building
+CLAUDE.md                   symlink to assets/PRINCIPLE.md
 scripts/apply-to-project.sh installer for an existing project
 ```
 
