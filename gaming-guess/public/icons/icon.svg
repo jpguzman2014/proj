@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gaming Guess">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#120e2a"/>
+      <stop offset="100%" stop-color="#0c0f16"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect x="82" y="143" width="348" height="226" rx="113" fill="#7f5cff"/>
+  <path d="M161 233h30v-30h30v30h30v30h-30v30h-30v-30h-30z" fill="#f2f5fb"/>
+  <circle cx="323" cy="230" r="22" fill="#f2f5fb"/>
+  <circle cx="358" cy="287" r="22" fill="#f2f5fb"/>
+</svg>
