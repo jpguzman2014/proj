@@ -316,7 +316,9 @@ export default function Run({ modeId }: { modeId: string }) {
         {question.artEntityId && (
           <ClueArt
             entityId={question.artEntityId}
-            reveal={cluesOpen}
+            /* Once answered, show the whole picture. Guessing right on the
+               first crop should not mean never seeing what it was. */
+            reveal={phase === 'playing' ? cluesOpen : totalClues}
             maxReveal={totalClues}
           />
         )}

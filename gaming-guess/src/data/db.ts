@@ -1,4 +1,5 @@
-import { GAMES, GAME_BY_ID } from './games';
+import { GAMES as MAINSTREAM_GAMES } from './games';
+import { OPEN_GAMES } from './openGames';
 import { SUB_ENTITIES } from './entities';
 import type { AnyEntity, EntityKind, Era, Game, SubEntity } from './types';
 import { eraOf } from './types';
@@ -26,6 +27,10 @@ function group<T, K>(rows: T[], key: (row: T) => K): Map<K, T[]> {
   return out;
 }
 
+/** One catalogue, two corpora. See `Corpus` in types.ts for why they are split. */
+const GAMES: Game[] = [...MAINSTREAM_GAMES, ...OPEN_GAMES];
+const GAME_BY_ID = new Map(GAMES.map((g) => [g.id, g]));
+
 function buildDatabase(): Database {
   const all: AnyEntity[] = [...GAMES, ...SUB_ENTITIES];
   return {
@@ -42,6 +47,7 @@ function buildDatabase(): Database {
 }
 
 export const db = buildDatabase();
+export { GAMES, GAME_BY_ID };
 
 export function gameOf(entity: AnyEntity): Game | undefined {
   return entity.kind === 'game'

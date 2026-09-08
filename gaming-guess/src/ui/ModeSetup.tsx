@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import Filters from './Filters';
 import { EMPTY_FILTERS, countActive, type Filters as FilterState } from '../engine/filters';
 import { countMatchingGames, estimateAvailable } from '../engine/engine';
-import { MODE_BY_ID, typeIdsForMode } from '../modes/registry';
+import { MODE_BY_ID, modeNeedsMedia, typeIdsForMode } from '../modes/registry';
+import { mediaCount } from '../media/commonsProvider';
 import { read, write } from '../state/storage';
 import { statsFor } from '../state/stats';
 import { navigate } from '../router';
@@ -35,6 +36,7 @@ export default function ModeSetup({ modeId }: { modeId: string }) {
   }
 
   const stats = statsFor(mode.id);
+  const waitingOnMedia = modeNeedsMedia(mode) && mediaCount() === 0;
   const wanted = mode.rules.questionCount ?? 10;
   const tooNarrow = available < Math.min(wanted, 5);
 
@@ -70,7 +72,14 @@ export default function ModeSetup({ modeId }: { modeId: string }) {
           </button>
         </div>
 
-        {tooNarrow && (
+        {tooNarrow && waitingOnMedia && (
+          <p className="verdict no" role="status">
+            No screenshots have been imported yet. Run{' '}
+            <code>node scripts/import-media.mjs</code> to fetch freely licensed screenshots
+            of open-source games from Wikimedia Commons, then this mode fills up.
+          </p>
+        )}
+        {tooNarrow && !waitingOnMedia && (
           <p className="verdict no" role="status">
             These filters leave too few questions for a fair run. Clear some of them.
           </p>

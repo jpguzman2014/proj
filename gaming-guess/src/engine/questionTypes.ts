@@ -32,6 +32,11 @@ export interface QuestionType {
   group: QuestionGroup;
   /** Which entity kinds can be the subject of this question. */
   subjectKinds: EntityKind[];
+  /**
+   * Only ask about games that have a freely licensed screenshot. Set on the
+   * screenshot questions, because those are unanswerable without a picture.
+   */
+  requiresMedia?: boolean;
   /** The question sentence shown to the player. */
   prompt(subject: AnyEntity, game: Game): string;
   /** The correct answer, as displayed. */
@@ -63,15 +68,23 @@ function nearbyEntities(subject: AnyEntity, kind: EntityKind, ctx: BuildContext)
   if (!subjectGame) return wide;
 
   const era = eraOf(subjectGame.releaseYear);
-  const sameEraPool = wide.filter((e) => {
-    const g = gameOf(e);
-    return g && g.id !== subjectGame.id && eraOf(g.releaseYear) === era;
-  });
-  const rest = wide.filter((e) => {
-    const g = gameOf(e);
-    return g && g.id !== subjectGame.id && eraOf(g.releaseYear) !== era;
-  });
-  return [...sameEraPool, ...rest];
+  const corpus = subjectGame.corpus ?? 'mainstream';
+  // Rank by how plausible a wrong answer is: same corpus and era first, then
+  // same corpus, then anything. Offering Half-Life 2 against three obscure
+  // open-source titles would give the answer away by shape alone.
+  const rank = (entity: AnyEntity): number => {
+    const g = gameOf(entity);
+    if (!g || g.id === subjectGame.id) return 9;
+    const sameCorpus = (g.corpus ?? 'mainstream') === corpus;
+    if (sameCorpus && eraOf(g.releaseYear) === era) return 0;
+    if (sameCorpus) return 1;
+    return 2;
+  };
+  return wide
+    .map((entity) => ({ entity, score: rank(entity) }))
+    .filter((row) => row.score < 9)
+    .sort((a, b) => a.score - b.score)
+    .map((row) => row.entity);
 }
 
 function names(entities: AnyEntity[]): string[] {
@@ -153,6 +166,32 @@ export const QUESTION_TYPES: QuestionType[] = [
   identify('VEHICLE_FROM_ART', 'Identify the vehicle', 'vehicle', 'vehicle', 'Which vehicle is this?'),
   identify('LOCATION_FROM_ART', 'Identify the location', 'location', 'location', 'Which location is this?'),
 
+  {
+    id: 'GAME_FROM_SCREENSHOT',
+    label: 'Game from screenshot',
+    group: 'game',
+    subjectKinds: ['game'],
+    requiresMedia: true,
+    prompt: () => 'Which game is this a screenshot of?',
+    answer: (_subject, game) => game.name,
+    distractors: (subject, _game, ctx) => otherGames(subject, ctx),
+    artSubject: (subject) => subject,
+    revealsGameTitle: false,
+  },
+  {
+    id: 'LICENSE_OF_GAME',
+    label: 'Software licence',
+    group: 'trivia',
+    subjectKinds: ['game'],
+    prompt: (_subject, game) => `Which licence is ${game.name} released under?`,
+    answer: (_subject, game) => game.softwareLicense ?? '',
+    distractors: (_subject, game, ctx) =>
+      nearbyEntities(game, 'game', ctx)
+        .map((g) => (g as Game).softwareLicense)
+        .filter((licence): licence is string => Boolean(licence) && licence !== game.softwareLicense),
+    artSubject: () => null,
+    revealsGameTitle: true,
+  },
   {
     id: 'CHARACTER_IN_GAME',
     label: 'Who appears in this game',

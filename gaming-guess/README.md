@@ -73,9 +73,24 @@ backend to sync them to.
 
 ## Images and licensing
 
-Game screenshots, cover art and character renders belong to their publishers,
-and finding one online does not make it redistributable. **This app ships none
-of them.**
+Two catalogues, one entity graph. Mainstream games carry metadata only, because
+their screenshots belong to their publishers. Open-source games carry real
+screenshots, because their communities publish them under free licences.
+
+```bash
+npm run import:media   # fetch freely licensed screenshots from Wikimedia Commons
+npm run dev:media      # or generate labelled placeholders to work offline
+```
+
+`public/media/` is generated and not committed. The importer refuses any licence
+outside `shared/media-licences.json` and fails loudly rather than reporting a
+successful import of nothing; a test re-checks the committed manifest against
+the same list. Screenshot questions draw only from games that have a picture, so
+the mode is simply empty until the import has run.
+
+Game screenshots, cover art and character renders belonging to commercial
+publishers are a different matter. Finding one online does not make it
+redistributable. **This app ships none of them.**
 
 Media sits behind `MediaProvider` in `src/media/provider.ts`, separate from the
 metadata. The default provider draws each clue image from the entry's own data:

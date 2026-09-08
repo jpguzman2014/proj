@@ -262,6 +262,29 @@ a:hover { color: var(--accent); }
 }
 .art-frame svg { display: block; width: 100%; height: 100%; }
 
+/* A photographic clue is wider than it is tall and holds a real screenshot,
+   which is cropped and blurred back to the full frame as clues are opened. */
+.art-frame--photo {
+  max-width: 560px;
+  aspect-ratio: 16 / 10;
+  background: var(--surface);
+}
+.art-frame--photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.45s ease, filter 0.45s ease;
+  will-change: transform, filter;
+}
+@media (prefers-reduced-motion: reduce) {
+  .art-frame--photo img { transition: none; }
+}
+
+.media-credit { margin-top: 0.35rem; }
+.media-credit a { color: var(--muted); text-decoration: underline; }
+.media-credit a:hover { color: var(--accent-line); }
+
 .clue-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
 .clue {
   display: flex;

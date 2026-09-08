@@ -1,4 +1,5 @@
 import { db, gameOf } from '../data/db';
+import { hasFreeMedia } from '../media/commonsProvider';
 import type { AnyEntity, Difficulty, EntityKind, Game } from '../data/types';
 import { cluesFor, type Clue } from './clues';
 import { applyFilters, difficultyRank, matchesFilters, type Filters } from './filters';
@@ -47,7 +48,15 @@ function subjectsFor(type: QuestionType, ctx: BuildContext, max?: Difficulty): A
   const ceiling = max ? difficultyRank(max) : Infinity;
   return type.subjectKinds
     .flatMap((kind) => ctx.candidatesByKind.get(kind) ?? [])
-    .filter((entity) => difficultyRank(entity.difficulty) <= ceiling);
+    .filter((entity) => difficultyRank(entity.difficulty) <= ceiling)
+    .filter((entity) => {
+      // A screenshot question with no screenshot is unanswerable, so the pool
+      // is empty rather than the question being wrong. Before the media import
+      // has run this simply means those modes have nothing to draw on.
+      if (!type.requiresMedia) return true;
+      const game = gameOf(entity);
+      return Boolean(game && hasFreeMedia(game.id));
+    });
 }
 
 function buildQuestion(
@@ -59,6 +68,9 @@ function buildQuestion(
   if (!game) return null;
 
   const answer = type.answer(subject, game);
+  // Some questions only apply to part of the catalogue, such as a software
+  // licence. An empty answer means this subject cannot carry this question.
+  if (!answer) return null;
   const distractors: string[] = [];
   const seen = new Set([answer.toLowerCase()]);
   for (const candidate of type.distractors(subject, game, ctx)) {

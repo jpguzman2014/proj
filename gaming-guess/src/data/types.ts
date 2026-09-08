@@ -60,8 +60,22 @@ export interface BaseEntity {
   art?: ArtSeed;
 }
 
+/**
+ * Which catalogue a game belongs to.
+ *
+ * Mainstream titles carry metadata only, because their screenshots belong to
+ * their publishers. Open-source titles can carry real screenshots, because
+ * their communities publish them under free licences. Keeping the two apart
+ * lets a screenshot question draw only from the half that has pictures, and
+ * keeps wrong answers inside the same world as the right one.
+ */
+export type Corpus = 'mainstream' | 'open-source';
+
 export interface Game extends BaseEntity {
   kind: 'game';
+  corpus?: Corpus;
+  /** Software licence, for open-source titles. Also a question in its own right. */
+  softwareLicense?: string;
   franchise: string;
   series?: string;
   developer: string;

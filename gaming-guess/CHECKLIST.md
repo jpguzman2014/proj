@@ -88,7 +88,14 @@ staged: everything in stage 1 costs nothing.
 - [x] **No fake reviews** — no testimonials, ratings, customer names or logos.
 - [x] **No unsupported claims** — no superlatives or user counts. Home screen
       numbers are counted from the database at render time.
-- [x] **Image copyright** — `CREDITS.md` covers every asset. All generated here.
+- [x] **Image copyright** — `CREDITS.md` covers every asset. App icons and clue
+      art are generated in this repository. Screenshots come from Wikimedia
+      Commons under an allowlist of commercially reusable licences, enforced by
+      the importer and re-checked by a test against the committed manifest, with
+      author, licence and source rendered beside every image.
+- [ ] **Run the media import before launch.** `npm run import:media`, then check
+      the console output for what was dropped and why. Never ship a build made
+      with `npm run dev:media` placeholders.
 - [?] **Local laws** — worldwide minus the exclusions in section 4. Confirm where
       the entity is established and which markets are actively targeted.
 

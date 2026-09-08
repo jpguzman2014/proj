@@ -11,7 +11,9 @@
     "typecheck": "tsc -b --noEmit false --dry 2>/dev/null || tsc --noEmit -p tsconfig.app.json",
     "test": "node scripts/run-tests.mjs",
     "server": "node server/index.mjs",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "import:media": "node scripts/import-media.mjs",
+    "dev:media": "node scripts/make-dev-media.mjs"
   },
   "dependencies": {
     "qrcode-generator": "^2.0.4",

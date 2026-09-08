@@ -1,0 +1,11 @@
+{
+  "note": "Licences the media importer will accept, matched as a prefix against Wikimedia Commons' machine-readable License field. Every one permits commercial reuse. One source of truth: the importer filters on it and a test asserts nothing in the shipped manifest falls outside it, so an image cannot reach the build by hand-editing the manifest.",
+  "allowed": [
+    "cc0",
+    "cc-by-1", "cc-by-2", "cc-by-3", "cc-by-4",
+    "cc-by-sa-1", "cc-by-sa-2", "cc-by-sa-3", "cc-by-sa-4",
+    "pd", "publicdomain",
+    "gpl", "lgpl", "agpl",
+    "bsd", "mit", "fal"
+  ]
+}

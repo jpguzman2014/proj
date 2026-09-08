@@ -21,6 +21,10 @@ export interface MediaAsset {
   credit: string;
   /** Licence identifier, e.g. "CC BY-SA 4.0" or "generated". */
   license: string;
+  /** Where the licence is stated. Rendered as a link when present. */
+  licenseUrl?: string;
+  /** Page describing the original file. */
+  sourceUrl?: string;
 }
 
 export interface MediaProvider {

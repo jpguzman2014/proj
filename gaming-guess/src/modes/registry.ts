@@ -1,4 +1,4 @@
-import { typeIdsForGroups, type QuestionGroup } from '../engine/questionTypes';
+import { QUESTION_TYPE_BY_ID, typeIdsForGroups, type QuestionGroup } from '../engine/questionTypes';
 
 export interface ModeRules {
   /** Whole-run countdown in seconds. Undefined means untimed. */
@@ -26,6 +26,8 @@ export interface GameMode {
   tagline: string;
   description: string;
   groups: QuestionGroup[];
+  /** Exact question types, when a group is too broad. Overrides `groups`. */
+  typeIds?: string[];
   rules: ModeRules;
   /** Shown on the home screen above the fold. */
   primary: boolean;
@@ -104,6 +106,18 @@ export const MODES: GameMode[] = [
     primary: true,
   },
   {
+    id: 'open-source-arcade',
+    name: 'Open Source Arcade',
+    icon: '🐧',
+    tagline: 'Real screenshots, free to show',
+    description:
+      'Real screenshots of open-source games, revealed a crop at a time. These are the only games the app can legally show you a picture of, because their communities publish them under free licences. Every image credits its author.',
+    groups: ['game'],
+    typeIds: ['GAME_FROM_SCREENSHOT'],
+    rules: { ...standard, questionCount: 10 },
+    primary: true,
+  },
+  {
     id: 'quick-play',
     name: 'Quick Play',
     icon: '🎲',
@@ -159,7 +173,13 @@ export const MODES: GameMode[] = [
 export const MODE_BY_ID = new Map(MODES.map((mode) => [mode.id, mode]));
 
 export function typeIdsForMode(mode: GameMode): string[] {
-  return typeIdsForGroups(mode.groups);
+  return mode.typeIds ?? typeIdsForGroups(mode.groups);
+}
+
+/** True when every question type in the mode needs a screenshot to exist. */
+export function modeNeedsMedia(mode: GameMode): boolean {
+  const types = typeIdsForMode(mode).map((id) => QUESTION_TYPE_BY_ID.get(id));
+  return types.length > 0 && types.every((type) => type?.requiresMedia);
 }
 
 /** Party rounds reuse the solo mode config, with speed scoring switched on. */
