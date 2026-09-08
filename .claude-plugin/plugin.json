@@ -1,0 +1,17 @@
+{
+  "name": "launch-check",
+  "description": "Pre-launch legal, privacy, accessibility, and honest-marketing audit for public-facing websites.",
+  "version": "1.0.0",
+  "author": {
+    "name": "jpguzman2014"
+  },
+  "keywords": [
+    "accessibility",
+    "wcag",
+    "gdpr",
+    "privacy",
+    "compliance",
+    "cookie-consent",
+    "pre-launch"
+  ]
+}

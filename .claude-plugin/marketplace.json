@@ -1,0 +1,13 @@
+{
+  "name": "jpguzman2014",
+  "owner": {
+    "name": "jpguzman2014"
+  },
+  "plugins": [
+    {
+      "name": "launch-check",
+      "source": "./",
+      "description": "Pre-launch legal, privacy, accessibility, and honest-marketing audit for public-facing websites."
+    }
+  ]
+}
