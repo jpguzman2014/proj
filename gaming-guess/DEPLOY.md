@@ -102,6 +102,104 @@ controller identity.
 should read the terms and the refund policy, because aggressive liability limits
 are struck out wholesale in consumer contexts in many countries.
 
+## What it actually costs, once live
+
+Three cost shapes, and it matters which is which:
+
+- **Per usage.** Scales with players. Zero until a threshold, then metered.
+- **Fixed recurring.** Arrives every month or year whether anyone plays or not.
+- **One-off.** Paid once.
+
+### Stage 1, free app, live
+
+| Item | Cost | Shape |
+|---|---|---|
+| Static hosting and bandwidth, Cloudflare Pages | 0 | Per usage, free at any volume |
+| TLS certificate | 0 | Included |
+| `*.pages.dev` subdomain | 0 | Included |
+| Party room server, Workers and Durable Objects | 0 | Per usage, free below the caps |
+| Contact email | 0 | Free mailbox |
+| Domain name, optional | 10 to 15 USD per year | Fixed recurring |
+
+**Total fixed monthly cost: zero.** Single player is a static bundle, so it costs
+nothing no matter how popular it gets. Only party mode consumes metered
+resources.
+
+### When the free tier runs out
+
+The Workers free plan allows 100,000 requests per day. Durable Objects allow
+about 3 million requests and 390,000 GB-seconds of duration per month. Inbound
+WebSocket messages bill at 20 to 1, so twenty messages count as one request.
+
+Modelling one party game as eight players over fifteen questions, roughly 16
+requests and, if the room stays open a quarter of an hour, about 115 GB-seconds:
+
+| Implementation | Binding limit | Free games per month |
+|---|---|---|
+| With WebSocket Hibernation | Requests | Roughly 180,000 |
+| Without it | Duration | Roughly 3,400 |
+
+**Build the hibernation path.** Cloudflare does not bill duration while sockets
+are hibernating, and a quiz room is idle almost all the time: players think for
+seconds, then send one small message. That single decision is worth about fifty
+times the free headroom. These are estimates from published rates, so confirm
+against a real bill.
+
+**There is no surprise invoice.** On the free plan, exceeding a limit makes
+further operations fail with an error rather than generating a charge. If party
+mode ever gets too popular, it breaks before it bills.
+
+The ceiling above that is the Workers paid plan at 5 USD per month, including 10
+million requests and 30 million CPU milliseconds, then 0.30 USD per million
+requests beyond. That is the realistic worst case for a long time.
+
+### Stage 2, taking money
+
+Every payment cost is per transaction. Nothing is charged monthly.
+
+| Item | Cost | Shape |
+|---|---|---|
+| Paddle or Lemon Squeezy base rate | 5% plus 0.50 USD | Per transaction |
+| International card | plus 1.5% | Per transaction |
+| PayPal | plus 1.5% | Per transaction |
+| Subscription billing | plus 0.5% | Per transaction |
+| Payout to a non-US bank | 1% | Per payout |
+| Sole trader registration | Usually 0 | One-off |
+| Company incorporation, if chosen instead | Tens of USD, varies by country | One-off |
+| Service address | 30 to 60 USD per year | Fixed recurring |
+| Lawyer review of terms and refunds | Several hundred USD upward | One-off |
+
+The flat 50 cents dominates at low prices. What you actually keep:
+
+| Price | Fee | Effective rate | You keep |
+|---|---|---|---|
+| 2.99 | 0.65 | 21.7% | 2.34 |
+| 4.99 | 0.75 | 15.0% | 4.24 |
+| 9.99 | 1.00 | 10.0% | 8.99 |
+| 19.99 | 1.50 | 7.5% | 18.49 |
+
+Price above 5 USD, or sell a bundle, or the flat fee eats a fifth of it.
+
+### Stage 3, app stores
+
+| Item | Cost | Shape |
+|---|---|---|
+| Apple Developer Program | 99 USD per year | Fixed recurring |
+| Google Play registration | 25 USD | One-off |
+| Store commission, under 1M USD a year | 15% | Per transaction |
+| Store commission, above that | 30% | Per transaction |
+| IARC age rating | 0 | Free via the storefronts |
+
+Apple's fee is the first genuinely fixed recurring cost in the whole plan, and it
+arrives whether anyone buys anything or not.
+
+**The crossover sits at exactly 5 USD.** Below that, a store's flat 15% beats 5%
+plus 50 cents. Above it, the merchant of record wins, and the gap widens with
+price. At 19.99 the store takes 3.00 and the merchant of record takes 1.50.
+
+So the stores are worth it for reach and discovery, not for economics. Do not add
+them until the numbers say the audience is there.
+
 ## Recommended order
 
 1. **Now, at zero.** Cloudflare Pages, `*.pages.dev` subdomain, free app, no
