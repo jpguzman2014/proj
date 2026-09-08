@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ClueArt from '../ClueArt';
 import QrCode from '../QrCode';
 import Filters from '../Filters';
+import NicknamePicker from './NicknamePicker';
 import { generateQuestions } from '../../engine/engine';
 import { EMPTY_FILTERS, countActive, type Filters as FilterState } from '../../engine/filters';
 import { PARTY_MODE, typeIdsForMode } from '../../modes/registry';
@@ -15,6 +16,7 @@ import {
   type ServerMessage,
   type Status,
 } from '../../net/room';
+import { randomNickname } from '../../net/nicknames';
 import { read, write } from '../../state/storage';
 
 type Phase = 'setup' | 'lobby' | 'question' | 'reveal' | 'over';
@@ -36,7 +38,7 @@ export default function Host() {
   const [standings, setStandings] = useState<RoomPlayer[]>([]);
   const [remaining, setRemaining] = useState(0);
 
-  const [nickname, setNickname] = useState('Host');
+  const [nickname, setNickname] = useState(randomNickname);
   const [questionCount, setQuestionCount] = useState(15);
   const [seconds, setSeconds] = useState(20);
   const [filters, setFilters] = useState<FilterState>(() =>
@@ -145,22 +147,7 @@ export default function Host() {
         </p>
 
         <div className="card stack">
-          <div>
-            <label className="field" htmlFor="host-name">
-              Your display name
-            </label>
-            <input
-              id="host-name"
-              type="text"
-              value={nickname}
-              maxLength={16}
-              onChange={(event) => setNickname(event.target.value)}
-              autoComplete="off"
-            />
-            <p className="small muted" style={{ marginTop: '0.35rem' }}>
-              Shown to everyone in the room. A nickname is fine, no need for a real name.
-            </p>
-          </div>
+          <NicknamePicker id="host-name" value={nickname} onChange={setNickname} />
 
           <div className="row">
             <div style={{ flex: '1 1 160px' }}>

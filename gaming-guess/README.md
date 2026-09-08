@@ -98,18 +98,25 @@ keeps the correct answer to itself, times each round and does the scoring, so a
 player cannot read the answer out of their own client. Rooms live in memory and
 are discarded when the host leaves or the room goes quiet. Nothing is persisted.
 
-## Privacy
+## Privacy and user-generated content
 
 There is no account, no analytics, no advertising and no third-party request.
 Scores, filters, ratings and reports live in `localStorage` on the device, and
 the statistics page has a button that deletes all of it.
 
+There is deliberately no user-generated content. Party display names are picked
+from a fixed vocabulary in `shared/nicknames.json`, never typed, and the server
+replaces anything outside it. That keeps the product outside user-to-user online
+safety regimes such as the UK Online Safety Act. Adding typed names, chat or
+reactions puts it back in scope, so treat any such request as a compliance
+decision rather than a product one. See `LICENSING.md`.
+
 ## Before this goes live
 
-Run the repository's Launch Check audit and finish the items it flags. The two
-that need facts only the operator has are the business identity block in the
-privacy policy and the governing law and liability clause in the terms. Both are
-marked in the pages themselves.
+`CHECKLIST.md` is the release checklist: the 19 Launch Check items plus payments,
+territories, age ratings, hosting and the open questions only the owner can
+answer. `LICENSING.md` records why the media, metadata, trademark and territory
+decisions were made the way they were.
 
 ## Not affiliated
 

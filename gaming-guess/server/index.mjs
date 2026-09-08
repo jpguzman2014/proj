@@ -9,12 +9,16 @@
  */
 import { WebSocketServer } from 'ws';
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+
+const VOCABULARY = JSON.parse(
+  readFileSync(new URL('../shared/nicknames.json', import.meta.url), 'utf8'),
+);
 
 const PORT = Number(process.env.PORT ?? 8787);
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // no O/0, I/1, L
 const CODE_LENGTH = 5;
 const MAX_PLAYERS = 20;
-const MAX_NICK = 16;
 const ROOM_IDLE_MS = 45 * 60 * 1000;
 const HOST_GRACE_MS = 90 * 1000;
 
@@ -32,12 +36,26 @@ function makeCode() {
   return code;
 }
 
-/** Nicknames are shown to strangers, so strip markup and control characters. */
-function cleanNick(raw, fallback) {
-  const trimmed = String(raw ?? '')
-    .replace(/[\u0000-\u001f\u007f<>]/g, '')
-    .trim();
-  return (trimmed || fallback).slice(0, MAX_NICK);
+/**
+ * Nicknames must come from the shared vocabulary, never from free text.
+ *
+ * This is the enforcement point. The client offers a picker, but a modified
+ * client can send any string, so anything not in the vocabulary is replaced
+ * rather than rejected: a player with a patched client still gets to play, they
+ * just do not get to put arbitrary text in front of other people.
+ */
+function cleanNick(raw) {
+  const candidate = String(raw ?? '').trim();
+  const parts = candidate.split(' ');
+  const allowed =
+    parts.length === 2 &&
+    VOCABULARY.adjectives.includes(parts[0]) &&
+    VOCABULARY.animals.includes(parts[1]);
+  if (allowed) return candidate;
+  const adjective =
+    VOCABULARY.adjectives[Math.floor(Math.random() * VOCABULARY.adjectives.length)];
+  const animal = VOCABULARY.animals[Math.floor(Math.random() * VOCABULARY.animals.length)];
+  return `${adjective} ${animal}`;
 }
 
 class Room {
@@ -227,7 +245,7 @@ wss.on('connection', (socket) => {
         room.hostId = playerId;
         room.players.set(playerId, {
           id: playerId,
-          name: cleanNick(msg.nickname, 'Host'),
+          name: cleanNick(msg.nickname),
           score: 0,
           socket,
           connected: true,
@@ -249,7 +267,7 @@ wss.on('connection', (socket) => {
         playerId = randomUUID();
         room.players.set(playerId, {
           id: playerId,
-          name: cleanNick(msg.nickname, `Player ${room.players.size + 1}`),
+          name: cleanNick(msg.nickname),
           score: 0,
           socket,
           connected: true,

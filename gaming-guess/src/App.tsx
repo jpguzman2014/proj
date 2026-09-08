@@ -3,7 +3,7 @@ import ModeSetup from './ui/ModeSetup';
 import Run from './ui/Run';
 import StatsPage from './ui/StatsPage';
 import About from './ui/About';
-import { Cookies, Privacy, Terms } from './ui/Legal';
+import { Cookies, Privacy, Refunds, Terms } from './ui/Legal';
 import Host from './ui/party/Host';
 import Player from './ui/party/Player';
 import { navigate, segments, useRoute } from './router';
@@ -15,6 +15,7 @@ function Footer() {
         <a href="#/about">About and data sources</a>
         <a href="#/privacy">Privacy</a>
         <a href="#/cookies">Cookies</a>
+        <a href="#/refunds">Refunds and availability</a>
         <a href="#/terms">Terms</a>
       </nav>
       <p>
@@ -59,6 +60,8 @@ function screenFor(path: string) {
       return <Cookies />;
     case 'terms':
       return <Terms />;
+    case 'refunds':
+      return <Refunds />;
     default:
       return <NotFound />;
   }

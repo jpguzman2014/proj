@@ -47,10 +47,14 @@ export function Privacy() {
 
       <h2>Multiplayer rooms</h2>
       <p>
-        If you host or join a party room, the nickname you type and your answers are sent to
-        the room server so scores can be worked out. Rooms are held in memory only and are
-        discarded when the room closes or the server restarts. Do not use your real name as a
-        nickname if you would rather other players in the room did not see it.
+        If you host or join a party room, the display name you picked and your answers are
+        sent to the room server so scores can be worked out. Rooms are held in memory only
+        and are discarded when the room closes or the server restarts.
+      </p>
+      <p>
+        Display names are chosen from a fixed list, never typed. Nothing you write is ever
+        shown to another player, so the app carries no user-generated content and there is
+        nothing in a room that could identify you.
       </p>
 
       <h2>Analytics and advertising</h2>
@@ -207,20 +211,89 @@ export function Terms() {
 
       <h2>Payments and refunds</h2>
       <p>
-        Nothing is sold here. There is no payment, no subscription and no in-app purchase, so
-        there is nothing to refund and no refund policy to publish.
+        The build you are using now sells nothing. Where a paid version is offered, the{' '}
+        <a href="#/refunds">refund policy</a> applies and is shown before you pay.
+      </p>
+
+      <h2>Where this is offered</h2>
+      <p>
+        Gaming Guess is not offered for sale in every country. It is withheld from
+        territories covered by trade sanctions, and from markets whose licensing rules it
+        does not hold a licence for. The current list is on the{' '}
+        <a href="#/refunds">refund and availability page</a>.
       </p>
       <p>
-        If anything is ever sold, a refund policy has to be published before the first sale,
-        stating the window, the conditions, the refund method and timing, and the exclusions.
-        In the EU and UK that includes the 14-day right to withdraw and the acknowledgement a
-        buyer of digital content has to give before download.
+        If you reach the app from a territory it is not offered in, you may not buy it, and
+        any purchase made from one may be reversed.
       </p>
 
       <h2>Liability and governing law</h2>
       <NeedsOperator>
         Replace this block with the operating entity, the governing law and jurisdiction, and
         a liability clause reviewed by a lawyer in that jurisdiction.
+      </NeedsOperator>
+    </article>
+  );
+}
+
+export function Refunds() {
+  return (
+    <article className="legal stack">
+      <h1 tabIndex={-1}>Refunds and availability</h1>
+      <p className="muted small">Last updated {UPDATED}</p>
+
+      <p>
+        The build you are using now is free and sells nothing. This page is the policy that
+        applies to any paid version, and it is shown before payment is taken.
+      </p>
+
+      <h2>Where you bought it decides who refunds you</h2>
+      <p>
+        If you bought through an app store, that store is the seller and its refund process
+        applies. Ask the store, not us. If you bought direct, ask us using the contact
+        details in the <a href="#/privacy">privacy policy</a>.
+      </p>
+
+      <h2>The window</h2>
+      <ul>
+        <li>
+          In the EU, EEA and UK you have 14 days to withdraw from a distance purchase without
+          giving a reason.
+        </li>
+        <li>
+          Digital content is the exception. If you ask for it to be made available
+          immediately, and you acknowledge at that point that you lose the withdrawal right,
+          the 14 days end as soon as it is delivered. That acknowledgement is presented at
+          checkout, not buried here.
+        </li>
+        <li>
+          Outside those regions the same 14 days are offered voluntarily, on the same terms.
+        </li>
+      </ul>
+
+      <h2>How a refund is paid</h2>
+      <p>
+        To the original payment method, within 14 days of the refund being agreed, at no cost
+        to you. Statutory rights are not affected, and nothing on this page removes them.
+      </p>
+
+      <h2>Exclusions</h2>
+      <ul>
+        <li>Content already delivered where you gave the acknowledgement described above.</li>
+        <li>Purchases made from a territory the app is not offered in.</li>
+        <li>Accounts refunding repeatedly in a pattern consistent with abuse.</li>
+      </ul>
+
+      <h2>Where the app is offered</h2>
+      <p>
+        Gaming Guess is withheld from territories covered by trade sanctions, and from
+        markets that require a licence it does not hold. Withholding is enforced by the
+        payment provider and the app stores, which maintain the sanctions lists.
+      </p>
+      <NeedsOperator>
+        Publish the current excluded-territory list here, taken from your payment provider
+        and app store settings so the page and the enforcement never disagree. See
+        LICENSING.md in the repository for the starting list and the reasoning.
       </NeedsOperator>
     </article>
   );

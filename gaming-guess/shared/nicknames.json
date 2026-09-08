@@ -1,0 +1,15 @@
+{
+  "note": "Party nicknames are picked from this fixed vocabulary, never typed. Nothing a player can put in front of another player is free text, so the app carries no user-generated content and stays outside user-to-user online safety regimes. The server validates against these same lists, because a modified client can send anything.",
+  "adjectives": [
+    "Swift", "Brave", "Clever", "Silent", "Golden", "Iron", "Lucky", "Mighty",
+    "Nimble", "Royal", "Sharp", "Steady", "Bold", "Cosmic", "Crimson", "Electric",
+    "Frosty", "Gentle", "Humble", "Jolly", "Keen", "Loyal", "Merry", "Noble",
+    "Rapid", "Rustic", "Sunny", "Turbo", "Vivid", "Wandering"
+  ],
+  "animals": [
+    "Otter", "Kestrel", "Badger", "Falcon", "Heron", "Lynx", "Marten", "Osprey",
+    "Panda", "Puffin", "Raven", "Salmon", "Tapir", "Vole", "Walrus", "Wombat",
+    "Yak", "Zebra", "Beetle", "Cricket", "Dormouse", "Egret", "Ferret", "Gecko",
+    "Hedgehog", "Ibis", "Jackdaw", "Koala", "Lemur", "Newt"
+  ]
+}

@@ -75,6 +75,13 @@ export interface Game extends BaseEntity {
   subgenres?: GenreId[];
   perspective?: 'first-person' | 'third-person' | 'top-down' | 'side-on' | 'isometric';
   modes?: Array<'single-player' | 'multiplayer' | 'co-op' | 'online'>;
+  /**
+   * Where this row's facts came from, for example a Wikidata Q-id. Facts are not
+   * copyrightable, but the EU database right protects substantial extraction
+   * from someone else's compilation, so provenance per row is what shows the
+   * catalogue was assembled rather than lifted. See LICENSING.md.
+   */
+  sources?: string[];
 }
 
 export type SubEntity = BaseEntity & { gameId: string };

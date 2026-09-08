@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import NicknamePicker from './NicknamePicker';
+import { randomNickname } from '../../net/nicknames';
 import {
   RoomConnection,
   roomServerUrl,
@@ -15,7 +17,7 @@ export default function Player({ initialCode }: { initialCode: string }) {
   const [status, setStatus] = useState<Status>('closed');
   const [error, setError] = useState('');
   const [code, setCode] = useState(initialCode.toUpperCase());
-  const [nickname, setNickname] = useState('');
+  const [nickname, setNickname] = useState(randomNickname);
   const [phase, setPhase] = useState<Phase>('join');
   const [playerId, setPlayerId] = useState('');
   const [question, setQuestion] = useState<RoomQuestion | null>(null);
@@ -83,7 +85,7 @@ export default function Player({ initialCode }: { initialCode: string }) {
     const conn = new RoomConnection(handle, setStatus);
     connection.current = conn;
     conn.connect();
-    conn.send({ t: 'join', code: code.trim().toUpperCase(), nickname: nickname.trim() });
+    conn.send({ t: 'join', code: code.trim().toUpperCase(), nickname });
   };
 
   const answer = (index: number) => {
@@ -114,23 +116,7 @@ export default function Player({ initialCode }: { initialCode: string }) {
               style={{ letterSpacing: '0.3em', fontSize: '1.4rem' }}
             />
           </div>
-          <div>
-            <label className="field" htmlFor="join-name">
-              Your name in the game
-            </label>
-            <input
-              id="join-name"
-              type="text"
-              value={nickname}
-              onChange={(event) => setNickname(event.target.value)}
-              maxLength={16}
-              autoComplete="off"
-              required
-            />
-            <p className="small muted" style={{ marginTop: '0.35rem' }}>
-              Everyone in the room sees this. A nickname works; you do not need your real name.
-            </p>
-          </div>
+          <NicknamePicker id="join-name" value={nickname} onChange={setNickname} />
           {error && (
             <p className="verdict no" role="status">
               {error}
