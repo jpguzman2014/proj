@@ -94,6 +94,64 @@ free-text field.
 reactions, or server-side syncing of report notes puts the product back in scope
 and triggers a risk assessment, a reporting route and moderation duties.
 
+## Advertising
+
+Considered and not recommended. Recording why, so it does not get re-litigated
+every quarter.
+
+Ads are the single most expensive decision available here in compliance terms,
+and the lowest paying. Everything below has to be weighed against a paid tier,
+which costs nothing fixed and carries none of it.
+
+### What ads would cost, beyond money
+
+- **The consent-free position ends.** Since January 2024 Google requires a
+  Google-certified consent management platform integrated with the IAB
+  Transparency and Consent Framework to serve personalised ads to users in the
+  EEA, the UK and Switzerland. That is a banner on every first visit, a vendor
+  list, and a consent state to honour.
+- **The no-third-party-request property ends.** Right now the app makes zero
+  requests to any origin but its own, which is what makes the privacy policy
+  short, true and cheap to maintain. An ad tag replaces that with a named
+  processor, an international transfer question, a retention answer, and a
+  cookies table that is no longer "none".
+- **The cookies page stops being a one-liner.** Every ad cookie needs a name,
+  provider, purpose, duration and category, and a working route to change the
+  choice later.
+
+### The part that decides it
+
+Google will not serve personalised ads on content labelled child-directed, or
+where it has other signals that a child is present, **regardless of the consent
+signal**. A quiz about video games will attract children and will be judged
+accordingly.
+
+So the realistic ceiling is non-personalised ads, which pay a fraction of
+personalised ones. Entertainment and quiz traffic already sits at the bottom of
+the RPM range, often under 2 USD per thousand page views before that discount.
+
+Rough shape at 100,000 page views a month, which is a real audience:
+
+| Model | Monthly |
+|---|---|
+| Non-personalised ads | Tens of dollars |
+| Paid version at 4.99, converting at 0.5% | Around 2,000 dollars |
+
+The paid route also arrives with no banner, no processor, no vendor list and no
+children's advertising question.
+
+### If ads happen anyway
+
+Use a contextual network that sets no cookies and does no profiling. No cookies
+means no consent banner, which preserves most of what is described above. The
+trade is thin inventory for this audience and lower fill.
+
+Whatever is chosen, it is a third-party script that phones home, so it needs a
+line in the privacy policy, an entry in the cookies table, and a re-run of the
+tracking audit in `CHECKLIST.md`. Never ship it before the consent gate works,
+because ads firing before a choice is the exact failure the audit exists to
+catch.
+
 ## Territories
 
 Withholding is enforced by the payment provider and the app stores, which

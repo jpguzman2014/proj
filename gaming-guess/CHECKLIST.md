@@ -72,6 +72,9 @@ staged: everything in stage 1 costs nothing.
 ### Privacy and data
 
 - [x] **Cookie consent** — nothing non-essential loads, so no banner is owed.
+      *This holds only while there are no ads. See the advertising section of
+      `LICENSING.md` before adding any ad tag: it ends the consent-free position,
+      the zero-third-party-request property and the one-line cookies page.*
 - [x] **Tracking audit** — verified in the browser: zero requests to any origin
       but the app's own, across every route and a full run.
 - [-] **Form consent** — no marketing, no mailing list, no email field.
