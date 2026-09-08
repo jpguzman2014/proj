@@ -6,6 +6,9 @@ enemies, bosses, vehicles and locations — one database, many ways to play.
 No login. No daily limit on practice. Installable as a PWA. Party multiplayer by
 QR code, so friends join from their own phones with nothing to install.
 
+New to this repository? `LOCAL-SETUP.md` is the handover: what to run, what
+still needs doing, and the RAWG decision that is open.
+
 ## Run it
 
 ```bash
