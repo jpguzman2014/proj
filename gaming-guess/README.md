@@ -113,7 +113,8 @@ decision rather than a product one. See `LICENSING.md`.
 
 ## Before this goes live
 
-`CHECKLIST.md` is the release checklist: the 19 Launch Check items plus payments,
+`DEPLOY.md` records the zero-cost hosting path and which free tiers quietly
+prohibit commercial use. `CHECKLIST.md` is the release checklist: the 19 Launch Check items plus payments,
 territories, age ratings, hosting and the open questions only the owner can
 answer. `LICENSING.md` records why the media, metadata, trademark and territory
 decisions were made the way they were.

@@ -1,6 +1,6 @@
 # Release checklist
 
-Everything between here and selling this worldwide. Updated 8 September 2026,
+Everything between here and a launch, free or paid. Updated 8 September 2026,
 against the build in this directory.
 
 Legend: `[x]` done and verified, `[ ]` ready to do, `[?]` needs the owner,
@@ -11,13 +11,29 @@ because it serves no publisher media. The remaining work is ordinary commercial
 compliance. The one thing that cannot be made legal cheaply is publisher
 screenshots and cover art, so do not add them. Reasoning in `LICENSING.md`.
 
-The five things standing between this and a paid launch, in order of lead time:
+**Cost position: a free launch is genuinely zero.** Static hosting, TLS, a
+subdomain and the party room server all have free tiers that cover this app. See
+`DEPLOY.md` for which free tiers are real and which ones prohibit commercial use
+or spin down. Selling later is also zero fixed cost through a merchant of record,
+which charges a percentage only when you earn. The checklist below is therefore
+staged: everything in stage 1 costs nothing.
 
-1. Incorporate and get the trading identity on the site. Everything else waits on it.
-2. Pick a merchant of record. Do not take card payments directly.
-3. Submit the age rating questionnaires. Rejections cost weeks.
-4. Get a lawyer over the terms and the refund policy.
-5. Import the catalogue from Wikidata, because 38 games is a demo, not a product.
+### Stage 1, free launch, no money changes hands, zero cost
+
+1. Import the catalogue from Wikidata. 38 games is a demo, not a product.
+2. Deploy the static build to Cloudflare Pages on a `*.pages.dev` subdomain.
+3. Port the room server to Durable Objects or Deno Deploy, both free.
+4. Publish contact details good enough for a free service.
+
+### Stage 2, taking money, still no fixed cost
+
+5. Add a merchant of record. No monthly fee, percentage only.
+6. Get the terms and refund policy reviewed before the first sale.
+7. Get a service address if the contact details should not be a home address.
+
+### Stage 3, only if the numbers justify it
+
+8. App stores, and the developer fees and age ratings that come with them.
 
 ---
 
@@ -47,7 +63,11 @@ The five things standing between this and a paid launch, in order of lead time:
 - [x] **Refund policy** — published at `#/refunds`, covers the 14-day withdrawal
       right, the digital content exception, method, timing and exclusions.
 - [?] **Real business details** — legal entity, registered postal address, contact
-      email, company or tax number. Marked in the privacy policy. Blocks launch.
+      email, company or tax number. Marked in the privacy policy.
+      *For a free launch the burden is lighter: a name and a contact email a
+      person can actually reach is the working minimum. The full set, including a
+      served address, is needed before money changes hands. Do not publish a home
+      address; see the note on service addresses in `DEPLOY.md`.*
 
 ### Privacy and data
 
@@ -71,10 +91,18 @@ The five things standing between this and a paid launch, in order of lead time:
 
 ## 2. Money
 
-- [?] **Incorporate.** Everything with a name on it waits for this.
-- [ ] **Merchant of record, not a payment gateway.** App stores, or Paddle or
-      Lemon Squeezy for the web build. They become the seller and handle VAT and
-      GST registration, collection and filing across every market. Taking card
+**Nothing in this section applies while the app is free.** No entity, no
+processor and no tax registration is needed to give away a quiz. Everything below
+is stage 2.
+
+- [?] **Incorporate, or register as a sole trader.** Needed before taking money,
+      not before launching. Sole trader registration is free in many places and
+      is enough to start.
+- [ ] **Merchant of record, not a payment gateway.** Paddle or Lemon Squeezy for
+      the web build, both 5% plus 50 cents per transaction with no monthly fee, so
+      the cost is variable and arrives only with revenue. They become the seller
+      and handle VAT and GST registration, collection and filing across every
+      market, and they enforce the territory exclusions at checkout. Taking card
       payments directly means owning tax registration in every country you sell
       into, which is not a reasonable burden for a quiz app.
 - [ ] **Wire the checkout acknowledgement.** EU and UK buyers of digital content
@@ -121,6 +149,10 @@ publication licence for a game, and is not achievable without a local publisher.
 
 ## 5. Age ratings
 
+**Not required for a website.** Age ratings are a storefront obligation, not a
+legal one for the web build. This entire section is deferred until stage 3, and
+IARC itself is free through the storefronts when you get there.
+
 - [ ] **IARC questionnaire.** One submission produces ESRB, PEGI, USK, ClassInd,
       ACB and GRAC ratings, covering Google Play, the Microsoft Store and
       Nintendo. Germany, Brazil, Australia and South Korea are handled by it.
@@ -151,9 +183,14 @@ removal reason on its own.
 
 ## 7. Shipping it
 
-- [ ] **Domain and static hosting** for the web build.
+- [ ] **Static hosting** on Cloudflare Pages, free, commercial use permitted, TLS
+      included. A domain is optional; the free subdomain works. Avoid Vercel Hobby
+      and GitHub Pages, whose terms exclude commercial use. See `DEPLOY.md`.
 - [ ] **Host the room server** with TLS, and set `VITE_ROOM_SERVER` to the `wss://`
-      URL. Party mode is the only thing needing a server at all.
+      URL. Party mode is the only thing needing a server at all. Durable Objects
+      on the Workers free plan or Deno Deploy both cover this app's traffic at
+      zero cost. Avoid free tiers that spin down; a room that takes 30 seconds to
+      answer a QR scan is a dead feature.
 - [ ] **Rate limit room creation.** Rooms are cheap but not free, and nothing
       currently stops one client opening thousands.
 - [?] **Name both hosts as processors** in the privacy policy, with what each logs,
@@ -176,8 +213,10 @@ removal reason on its own.
 
 Open questions for the owner, consolidated:
 
+- Free launch first, or straight to charging? A free launch needs almost none of
+  the answers below.
 - What legal entity, at what registered address, with what contact email and
-  company or tax number?
+  company or tax number? Deferred while the app is free.
 - One-off purchase, subscription, or free with a paid tier?
 - Which merchant of record?
 - Who hosts the static site and who hosts the room server?
