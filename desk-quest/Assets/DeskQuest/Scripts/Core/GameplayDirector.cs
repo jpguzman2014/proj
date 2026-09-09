@@ -62,6 +62,21 @@ namespace DeskQuest.Core
         /// </summary>
         public string CurrentObjective { get { return BuildObjective(); } }
 
+        /// <summary>The character, or null before a level starts. Read by the diagnostics overlay.</summary>
+        public StickManController Character { get { return m_Character; } }
+
+        /// <summary>The level's obstacles, or null before a level starts.</summary>
+        public ObstacleManager Obstacles { get { return m_Obstacles; } }
+
+        /// <summary>The change detector, which may be absent.</summary>
+        public EnvironmentChangeDetector Detector { get { return m_Detector; } }
+
+        /// <summary>Seconds the player has been stuck on the current obstacle.</summary>
+        public float SecondsWaiting
+        {
+            get { return m_WaitingFor < 0 ? 0f : Time.time - m_WaitingSince; }
+        }
+
         /// <summary>
         /// Builds and starts a level on an anchored play area.
         /// </summary>
@@ -96,9 +111,12 @@ namespace DeskQuest.Core
             m_Character.PlaceAt(LevelLayout.ToLocalPosition(level.Start, size), 0f);
 
             m_Obstacles.Cleared += OnObstacleCleared;
-            m_Goal.Reached += OnGoalReached;
+            m_Goal.Opened += OnTreasureOpened;
             m_Character.Jumped += OnJumped;
             m_Character.ClimbRejected += OnClimbRejected;
+
+            if (controlPad != null)
+                controlPad.InteractPressed += OnInteractPressed;
 
             if (m_Detector != null)
             {
@@ -122,7 +140,7 @@ namespace DeskQuest.Core
 
             if (m_Goal != null)
             {
-                m_Goal.Reached -= OnGoalReached;
+                m_Goal.Opened -= OnTreasureOpened;
                 Destroy(m_Goal.gameObject);
             }
 
@@ -132,6 +150,9 @@ namespace DeskQuest.Core
                 m_Character.ClimbRejected -= OnClimbRejected;
                 Destroy(m_Character.gameObject);
             }
+
+            if (m_ControlPad != null)
+                m_ControlPad.InteractPressed -= OnInteractPressed;
 
             if (m_Detector != null)
             {
@@ -153,7 +174,15 @@ namespace DeskQuest.Core
                 return;
 
             if (m_Goal != null && m_Character != null && m_Character.Motor != null)
-                m_Goal.CheckArrival(m_Character.Motor.Position);
+            {
+                bool wasInRange = m_Goal.PlayerInRange;
+                m_Goal.UpdateProximity(m_Character.Motor.Position, Time.deltaTime);
+
+                // The objective line changes to the open prompt, so it has to be pushed
+                // when proximity changes rather than only when an obstacle clears.
+                if (m_Goal.PlayerInRange != wasInRange)
+                    PushObjective();
+            }
 
             UpdateWait();
         }
@@ -266,7 +295,18 @@ namespace DeskQuest.Core
             PushObjective();
         }
 
-        void OnGoalReached()
+        void OnInteractPressed()
+        {
+            if (!m_Running || m_Goal == null)
+                return;
+
+            // Rejected the same way a climb with nothing in reach is: a small blip rather
+            // than silence, so the button never feels broken.
+            if (!m_Goal.TryOpen() && m_Audio != null)
+                m_Audio.PlayRejected();
+        }
+
+        void OnTreasureOpened()
         {
             if (m_Character != null)
                 m_Character.Celebrate();
@@ -314,6 +354,9 @@ namespace DeskQuest.Core
             if (m_Obstacles == null)
                 return string.Empty;
 
+            if (m_Goal != null && m_Goal.PlayerInRange && !m_Goal.IsOpened)
+                return "Press USE to open the treasure!";
+
             Obstacle next = m_Obstacles.NextToClear();
             if (next == null)
                 return "Path clear. Get to the treasure!";
@@ -321,7 +364,7 @@ namespace DeskQuest.Core
             if (ManualFallbackOffered)
                 return "Still blocked? Tap the red block to clear it.";
 
-            return "Take the " + next.Label.ToLower() + " off your desk to clear the red block.";
+            return "Take the " + next.Label.ToLower() + " off the red square on your desk.";
         }
     }
 }

@@ -6,6 +6,7 @@ static class Program
     {
         MotorTests.RunAll();
         LevelTests.RunAll();
+        DetectionTests.RunAll();
 
         Console.WriteLine();
         if (TestRunner.Failures == 0)

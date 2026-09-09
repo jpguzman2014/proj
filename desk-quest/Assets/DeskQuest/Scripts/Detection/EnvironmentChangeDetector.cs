@@ -11,30 +11,23 @@ namespace DeskQuest.Detection
     /// Watches the patches of real desk under the obstacles that need tidying, and reports
     /// when one of them has been cleared.
     ///
-    /// Coverage from <see cref="DeskOccupancyProbe"/> is noisy: it jumps around as the
-    /// tracker refines the plane, and it rises as soon as the player merely looks at a
-    /// patch properly. So a single high reading means nothing. An area counts as cleared
-    /// only when it starts out mostly uncovered, then goes above the threshold and stays
-    /// there while the player keeps looking at it. Both halves matter. The baseline stops
-    /// an area that was already clear from firing on the first frame, and the hold stops a
-    /// flicker of coverage from opening the path.
+    /// This class does two things and neither is the judgement itself: it samples coverage
+    /// through <see cref="DeskOccupancyProbe"/> on a timer, and it feeds each reading to an
+    /// <see cref="AreaClearanceTracker"/>. The decision of what a sequence of readings means
+    /// lives in the tracker, which has no Unity dependency and is unit-tested, because that
+    /// is the part most likely to be wrong and the part hardest to check on a real desk.
     ///
-    /// This is the least certain part of the prototype and the part most likely to need
-    /// rethinking after it meets a real desk. It is a proxy for tidying up, not a
-    /// recognition system, and it should not be described to a player as one.
+    /// The whole approach is a proxy for tidying up rather than recognition. See
+    /// <see cref="DeskOccupancyProbe"/> for what it cannot tell you.
     /// </summary>
     public class EnvironmentChangeDetector : MonoBehaviour
     {
-        /// <summary>What the detector knows about one watched area.</summary>
         class WatchedArea
         {
             public int ObstacleIndex;
             public Vector3 LocalCentre;
             public Vector3 LocalSize;
-            public float Coverage;
-            public float HeldFor;
-            public bool BaselineEstablished;
-            public bool Reported;
+            public AreaClearanceTracker Tracker;
         }
 
         [SerializeField] ARPlaneManager m_PlaneManager;
@@ -43,7 +36,7 @@ namespace DeskQuest.Detection
         [Range(0f, 1f)]
         [SerializeField] float m_ClearedThreshold = 0.6f;
 
-        [Tooltip("Coverage below this on first look establishes that something is there to move.")]
+        [Tooltip("Coverage at or below this on first look establishes that something is there to move.")]
         [Range(0f, 1f)]
         [SerializeField] float m_OccupiedThreshold = 0.35f;
 
@@ -61,6 +54,7 @@ namespace DeskQuest.Detection
         ObstacleManager m_ObstacleManager;
         readonly List<WatchedArea> m_Watched = new List<WatchedArea>();
         float m_NextSampleTime;
+        float m_LastSampleTime;
         bool m_Running;
 
         /// <summary>Raised with the obstacle index when an area is judged cleared.</summary>
@@ -69,21 +63,21 @@ namespace DeskQuest.Detection
         /// <summary>False when there is no plane manager, in which case detection cannot run at all.</summary>
         public bool IsAvailable { get { return m_Probe != null && m_Probe.IsUsable; } }
 
+        /// <summary>How many areas are being watched. Zero means the mechanic is inert.</summary>
+        public int WatchedCount { get { return m_Watched.Count; } }
+
         public void SetPlaneManager(ARPlaneManager planeManager)
         {
             m_PlaneManager = planeManager;
         }
 
-        /// <summary>
-        /// Starts watching the areas under every obstacle that needs real-world clearing.
-        /// </summary>
+        /// <summary>Starts watching the patch under every obstacle that needs real-world clearing.</summary>
         public void Begin(Transform playAreaRoot, ObstacleManager obstacles)
         {
             m_PlayAreaRoot = playAreaRoot;
+            m_ObstacleManager = obstacles;
             m_Probe = new DeskOccupancyProbe(m_PlaneManager);
             m_Watched.Clear();
-
-            m_ObstacleManager = obstacles;
 
             List<ObstacleBox> boxes = obstacles.Obstacles;
             for (int i = 0; i < boxes.Count; i++)
@@ -97,9 +91,12 @@ namespace DeskQuest.Detection
                 area.ObstacleIndex = i;
                 area.LocalCentre = footprint.Center;
                 area.LocalSize = footprint.Size;
+                area.Tracker = new AreaClearanceTracker(
+                    m_OccupiedThreshold, m_ClearedThreshold, m_HoldSeconds);
                 m_Watched.Add(area);
             }
 
+            m_LastSampleTime = Time.time;
             m_Running = m_Watched.Count > 0 && IsAvailable;
 
             if (!IsAvailable)
@@ -112,73 +109,11 @@ namespace DeskQuest.Detection
             m_Running = false;
         }
 
-        /// <summary>
-        /// Current coverage for an obstacle, from 0 to 1, or -1 if it is not watched.
-        /// The interface uses this to show progress rather than leaving the player
-        /// wondering whether anything is happening.
-        /// </summary>
+        /// <summary>Latest coverage for an obstacle, from 0 to 1, or -1 if it is not watched.</summary>
         public float CoverageFor(int obstacleIndex)
         {
-            for (int i = 0; i < m_Watched.Count; i++)
-            {
-                if (m_Watched[i].ObstacleIndex == obstacleIndex)
-                    return m_Watched[i].Coverage;
-            }
-
-            return -1f;
-        }
-
-        void Update()
-        {
-            if (!m_Running || Time.time < m_NextSampleTime)
-                return;
-
-            m_NextSampleTime = Time.time + m_SampleInterval;
-            Sample();
-        }
-
-        void Sample()
-        {
-            float elapsed = m_SampleInterval;
-
-            for (int i = 0; i < m_Watched.Count; i++)
-            {
-                WatchedArea area = m_Watched[i];
-
-                if (area.Reported)
-                    continue;
-
-                area.Coverage = m_Probe.CoverageOf(
-                    m_PlayAreaRoot, area.LocalCentre, area.LocalSize, m_SamplesPerAxis);
-
-                if (m_ObstacleManager != null)
-                    m_ObstacleManager.SetClearProgress(area.ObstacleIndex, area.Coverage);
-
-                // Until the tracker has seen the area as occupied at least once, there is
-                // no change to detect. Without this an obstacle placed over already-clear
-                // desk would clear itself the moment the level started.
-                if (!area.BaselineEstablished)
-                {
-                    if (area.Coverage <= m_OccupiedThreshold)
-                        area.BaselineEstablished = true;
-
-                    area.HeldFor = 0f;
-                    continue;
-                }
-
-                if (area.Coverage >= m_ClearedThreshold)
-                    area.HeldFor += elapsed;
-                else
-                    area.HeldFor = 0f;
-
-                if (area.HeldFor < m_HoldSeconds)
-                    continue;
-
-                area.Reported = true;
-
-                if (AreaCleared != null)
-                    AreaCleared(area.ObstacleIndex);
-            }
+            WatchedArea area = Find(obstacleIndex);
+            return area != null ? area.Tracker.Coverage : -1f;
         }
 
         /// <summary>
@@ -188,13 +123,55 @@ namespace DeskQuest.Detection
         /// </summary>
         public bool HasBaseline(int obstacleIndex)
         {
+            WatchedArea area = Find(obstacleIndex);
+            return area != null && area.Tracker.HasBaseline;
+        }
+
+        WatchedArea Find(int obstacleIndex)
+        {
             for (int i = 0; i < m_Watched.Count; i++)
             {
                 if (m_Watched[i].ObstacleIndex == obstacleIndex)
-                    return m_Watched[i].BaselineEstablished;
+                    return m_Watched[i];
             }
 
-            return false;
+            return null;
+        }
+
+        void Update()
+        {
+            if (!m_Running || Time.time < m_NextSampleTime)
+                return;
+
+            // Real elapsed time rather than the nominal interval, so a frame hitch does
+            // not quietly shorten or lengthen the hold the tracker is measuring.
+            float elapsed = Time.time - m_LastSampleTime;
+            m_LastSampleTime = Time.time;
+            m_NextSampleTime = Time.time + m_SampleInterval;
+
+            Sample(elapsed);
+        }
+
+        void Sample(float elapsed)
+        {
+            for (int i = 0; i < m_Watched.Count; i++)
+            {
+                WatchedArea area = m_Watched[i];
+
+                if (area.Tracker.IsCleared)
+                    continue;
+
+                float coverage = m_Probe.CoverageOf(
+                    m_PlayAreaRoot, area.LocalCentre, area.LocalSize, m_SamplesPerAxis);
+
+                bool justCleared = area.Tracker.Observe(coverage, elapsed);
+
+                if (m_ObstacleManager != null)
+                    m_ObstacleManager.SetClearProgress(area.ObstacleIndex, area.Tracker.Progress);
+
+                if (justCleared && AreaCleared != null)
+                    AreaCleared(area.ObstacleIndex);
+            }
         }
     }
 }

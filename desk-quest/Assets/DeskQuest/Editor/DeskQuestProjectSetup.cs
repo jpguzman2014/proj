@@ -1,9 +1,13 @@
 using System;
 using System.Reflection;
+using DeskQuest.Core;
+using DeskQuest.UI;
+using Unity.XR.CoreUtils;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.XR.ARFoundation;
 
 namespace DeskQuest.EditorTools
 {
@@ -56,6 +60,11 @@ namespace DeskQuest.EditorTools
         {
             bool allGood = true;
 
+            Debug.Log("[DeskQuest] --- scene ---");
+            allGood &= ValidateScene();
+
+            Debug.Log("[DeskQuest] --- build settings ---");
+
             allGood &= Check(PlayerSettings.Android.minSdkVersion >= AndroidSdkVersions.AndroidApiLevel24,
                 "Android minimum API level is 24 or higher (required by ARCore).");
 
@@ -75,7 +84,49 @@ namespace DeskQuest.EditorTools
             if (allGood)
                 Debug.Log("[DeskQuest] Setup looks complete. You can build to a device.");
             else
-                Debug.LogWarning("[DeskQuest] Setup is incomplete. See the failures above.");
+                Debug.LogWarning("[DeskQuest] Setup is incomplete. See the failures above. " +
+                                 "Most of it is fixed by running Tools > Desk Quest > Set Up Scene.");
+        }
+
+        /// <summary>
+        /// Checks the open scene has what the game needs at runtime. Every one of these
+        /// produces a different symptom on the phone, and none of them produces an error
+        /// that says what is actually wrong: a missing plane prefab looks like AR not
+        /// working, and an unassigned XR Origin camera looks like a black screen.
+        /// </summary>
+        static bool ValidateScene()
+        {
+            bool allGood = true;
+
+            allGood &= Check(UnityEngine.Object.FindObjectOfType<ARSession>() != null,
+                "The scene has an AR Session.");
+
+            XROrigin origin = UnityEngine.Object.FindObjectOfType<XROrigin>();
+            allGood &= Check(origin != null, "The scene has an XR Origin.");
+            allGood &= Check(origin != null && origin.Camera != null,
+                "The XR Origin has a camera assigned (without it the screen stays black).");
+
+            ARPlaneManager planeManager = UnityEngine.Object.FindObjectOfType<ARPlaneManager>();
+            allGood &= Check(planeManager != null, "The scene has an AR Plane Manager.");
+            allGood &= Check(planeManager != null && planeManager.planePrefab != null,
+                "The plane manager has a plane prefab (without it detected surfaces are invisible).");
+
+            allGood &= Check(UnityEngine.Object.FindObjectOfType<ARRaycastManager>() != null,
+                "The scene has an AR Raycast Manager (needed to tap the desk).");
+
+            allGood &= Check(UnityEngine.Object.FindObjectOfType<ARAnchorManager>() != null,
+                "The scene has an AR Anchor Manager (without it the play area drifts).");
+
+            allGood &= Check(UnityEngine.Object.FindObjectOfType<ARGameManager>() != null,
+                "The scene has the Desk Quest game manager.");
+
+            allGood &= Check(UnityEngine.Object.FindObjectOfType<GameplayDirector>() != null,
+                "The scene has the gameplay director.");
+
+            allGood &= Check(UnityEngine.Object.FindObjectOfType<UIManager>() != null,
+                "The scene has the interface manager.");
+
+            return allGood;
         }
 
         static bool Check(bool passed, string description)

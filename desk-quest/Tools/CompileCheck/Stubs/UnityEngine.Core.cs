@@ -40,6 +40,8 @@ namespace UnityEngine
         public Component AddComponent(Type type) { return null; }
         public T GetComponent<T>() where T : Component { return null; }
         public void SetActive(bool active) { }
+        public bool activeSelf { get { return false; } }
+        public bool activeInHierarchy { get { return false; } }
         public static GameObject CreatePrimitive(PrimitiveType type) { return null; }
         public static GameObject Find(string name) { return null; }
     }

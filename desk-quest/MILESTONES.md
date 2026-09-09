@@ -17,9 +17,9 @@ something is marked verified, that means unit-tested here, not tested on a devic
 | 5 Obstacles and goal | Written, layout unit-tested |
 | 6 Environment change detection | Written, cannot be tested without a desk |
 | 7 Cleaning connected to gameplay | Written, cannot be tested without a desk |
-| 8 Polish | Sound and completion screen done, rest not started |
+| 8 Polish | Sound, completion screen and diagnostics done, rest not started |
 
-25 unit tests cover the parts that are pure logic. They pass. Everything AR, everything
+35 unit tests cover the parts that are pure logic. They pass. Everything AR, everything
 visual and everything about how it feels is unverified.
 
 ## What each milestone produced
@@ -71,8 +71,13 @@ desk is not flat desk, so the plane stops at its edge. Take the object away and 
 grows to include the space it occupied. Coverage rising from low to high over a watched
 patch is the signal.
 
-`EnvironmentChangeDetector` requires a patch to read as occupied first, then to stay
-covered for a sustained period, because a single high reading means nothing.
+The judgement itself lives in `AreaClearanceTracker`, deliberately separated from the AR
+code that feeds it and with no Unity dependency, so it can be tested against reading
+sequences that would take a real desk and a patient person to reproduce. It requires a
+patch to read as occupied first, then to stay covered for a sustained period, because a
+single high reading means nothing. Ten tests cover it, including the two failure modes
+that would ruin the game: an area clearing itself when nothing was ever on it, and a brief
+spike of noise opening the path.
 
 This is the least certain part of the project. It cannot tell what an object was, cannot
 tell tidying from nudging aside, cannot distinguish removal from the player simply looking
@@ -99,7 +104,20 @@ whether milestone 6 actually works.
 
 Sound effects are generated as waveforms at runtime, so there are no audio files to
 license or ship and a sound is retuned by changing a frequency. The completion screen and
-celebration are in. Tutorial, effects and better animation are not.
+celebration are in.
+
+The treasure opens on the USE button rather than on walking into a radius, which gives the
+interact control something real to do. It also opens by itself after four seconds in range,
+because the interact button has never been pressed on a real device and a level that cannot
+be finished would be a poor way to discover that.
+
+A diagnostics panel behind a small button shows AR session state, plane count, character
+state and per-barrier coverage. It exists because this project is written on a machine with
+no Unity and tested by someone else on a phone, so the only channel back is what they can
+describe, and "coverage sat at 0.4 with no baseline" is actionable where "it did not clear"
+is not.
+
+Tutorial, particle effects and better animation are not done.
 
 ## Held back on purpose
 

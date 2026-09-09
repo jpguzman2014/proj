@@ -20,10 +20,12 @@ Two things were run in its place:
 
 - A stub-based type check across both Unity input backends, which catches syntax and
   signature errors but is not a build.
-- 25 unit tests over the movement rules and the level layout, which are real tests. The
-  movement solver has no Unity dependency, so walking, jumping, crouching under
-  overhangs, climbing, vaulting and obstacle clearing are genuinely verified, as is the
-  fact that the two barriers cannot be walked around or jumped over.
+- 35 unit tests over the movement rules, the level layout and the change-detection
+  decision, which are real tests. Those three are written without any Unity dependency
+  precisely so they can be tested, so walking, jumping, crouching under overhangs,
+  climbing, vaulting and obstacle clearing are genuinely verified, as is the fact that the
+  barriers cannot be walked around or jumped over, and that a noisy coverage signal does
+  not open the path by accident.
 
 What neither can tell you is whether the AR half works, or whether any of it feels good
 in the hand. Expect to fix small things the first time you open the project. Read
@@ -135,8 +137,10 @@ impossible to test.
    tracker can see the surface that was underneath. The square should tint from red towards
    amber as the desk becomes visible, then the barrier shrinks away with a sound.
 9. **Progress.** Walk the stick man through the gap and repeat for the second barrier.
-10. **Finish.** Reach the treasure. The character celebrates and DESK QUEST COMPLETE
-    appears.
+10. **Finish.** Walk up to the treasure. It grows and the objective line asks you to press
+    USE. Press it. The character celebrates and DESK QUEST COMPLETE appears. If the USE
+    button does nothing, the treasure opens on its own after four seconds, and that is
+    worth telling me about because it means the interact button is not working.
 
 If a barrier does not clear after about 25 seconds of the desk being genuinely clear, the
 objective line changes to offer a fallback and you can tap the red block to clear it by
@@ -144,15 +148,35 @@ hand. That fallback exists so a level is never unfinishable. **If you find yours
 it every time, the change detection is not working on your desk, and that is the single
 most important thing to tell me.**
 
+### The diagnostics panel
+
+There is a small **i** button in the top-left corner. It opens a readout of what the game
+thinks is happening, and it is the fastest way to turn "it did not work" into something
+fixable. It shows:
+
+- **session** and **state**: whether AR is tracking, and which phase the game is in.
+- **planes** and **best surface**: how much of the desk the tracker has found.
+- **character**: what the stick man is doing and where he is.
+- **cover** per barrier, with **NO BASELINE**, **armed** or **cleared**.
+
+That last line is the important one. `NO BASELINE` means the game never saw anything on
+that patch of desk, so it cannot detect it being removed; point the camera at the square
+for a few seconds. `armed` with a coverage number that stays low means the tracker is not
+seeing the desk surface even though the object has gone.
+
 ### What to report back
 
 - Phone model and Android version.
 - Which of the ten steps worked and which did not, and what you saw instead.
-- For step 8 especially: did the square ever tint? Did the barrier clear on its own, and
-  roughly how long did it take? Did anything clear that should not have?
+- For step 8 especially: a photo or reading of the diagnostics panel while you are stuck.
+  The coverage number and whether it says armed is exactly what I need.
 - If nothing renders at all, or the screen is black behind the interface, that is an XR
   Plug-in Management or graphics API problem rather than a game bug. Send the console
   output from **Build And Run**.
+
+If the game misbehaves before you get that far, run **Tools > Desk Quest > Validate Setup**
+in Unity and send the console output. It checks the scene and the build settings and names
+what is missing.
 
 ## Privacy
 

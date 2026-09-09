@@ -22,6 +22,7 @@ namespace DeskQuest.UI
         GameObject m_CompletionPanel;
         Button m_PlayAgainButton;
         ControlPad m_ControlPad;
+        DiagnosticsOverlay m_Diagnostics;
 
         /// <summary>Raised when the player asks to pick a different surface.</summary>
         public event Action RescanRequested;
@@ -42,6 +43,7 @@ namespace DeskQuest.UI
             BuildControls(canvas.transform);
             BuildBottomBar(canvas.transform);
             BuildCompletion(canvas.transform);
+            BuildDiagnostics(canvas.transform);
         }
 
         void BuildTopBar(Transform parent)
@@ -149,6 +151,15 @@ namespace DeskQuest.UI
 
             m_CompletionPanel = panel.gameObject;
             m_CompletionPanel.SetActive(false);
+        }
+
+        void BuildDiagnostics(Transform parent)
+        {
+            GameObject diagnostics = new GameObject("Diagnostics");
+            diagnostics.transform.SetParent(parent, false);
+
+            m_Diagnostics = diagnostics.AddComponent<DiagnosticsOverlay>();
+            m_Diagnostics.Build(diagnostics.transform);
         }
 
         void OnRescanClicked()
