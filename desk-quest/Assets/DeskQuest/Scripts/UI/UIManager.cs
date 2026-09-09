@@ -36,7 +36,6 @@ namespace DeskQuest.UI
         void Awake()
         {
             Canvas canvas = UIFactory.CreateCanvas("DeskQuestCanvas", 0);
-            canvas.transform.SetParent(transform, false);
 
             BuildTopBar(canvas.transform);
             BuildObjective(canvas.transform);
@@ -90,11 +89,11 @@ namespace DeskQuest.UI
 
         void BuildControls(Transform parent)
         {
-            GameObject controls = new GameObject("Controls");
-            controls.transform.SetParent(parent, false);
+            RectTransform controls = UIFactory.CreateRect(parent, "Controls");
+            UIFactory.Stretch(controls);
 
-            m_ControlPad = controls.AddComponent<ControlPad>();
-            m_ControlPad.Build(controls.transform);
+            m_ControlPad = controls.gameObject.AddComponent<ControlPad>();
+            m_ControlPad.Build(controls);
             m_ControlPad.SetVisible(false);
         }
 
@@ -155,11 +154,11 @@ namespace DeskQuest.UI
 
         void BuildDiagnostics(Transform parent)
         {
-            GameObject diagnostics = new GameObject("Diagnostics");
-            diagnostics.transform.SetParent(parent, false);
+            RectTransform diagnostics = UIFactory.CreateRect(parent, "Diagnostics");
+            UIFactory.Stretch(diagnostics);
 
-            m_Diagnostics = diagnostics.AddComponent<DiagnosticsOverlay>();
-            m_Diagnostics.Build(diagnostics.transform);
+            m_Diagnostics = diagnostics.gameObject.AddComponent<DiagnosticsOverlay>();
+            m_Diagnostics.Build(diagnostics);
         }
 
         void OnRescanClicked()
