@@ -66,6 +66,7 @@ namespace UnityEngine
         public static Vector2 zero { get { return new Vector2(0, 0); } }
         public static Vector2 one { get { return new Vector2(1, 1); } }
         public float sqrMagnitude { get { return x * x + y * y; } }
+        public float magnitude { get { return Mathf.Sqrt(x * x + y * y); } }
         public static Vector2 operator *(Vector2 a, float b) { return new Vector2(a.x * b, a.y * b); }
         public static Vector2 operator -(Vector2 a, Vector2 b) { return new Vector2(a.x - b.x, a.y - b.y); }
         public static Vector2 operator +(Vector2 a, Vector2 b) { return new Vector2(a.x + b.x, a.y + b.y); }
@@ -79,8 +80,16 @@ namespace UnityEngine
         public static Vector3 zero { get { return new Vector3(0, 0, 0); } }
         public static Vector3 one { get { return new Vector3(1, 1, 1); } }
         public static Vector3 up { get { return new Vector3(0, 1, 0); } }
-        public Vector3 normalized { get { return this; } }
         public float sqrMagnitude { get { return x * x + y * y + z * z; } }
+        public float magnitude { get { return Mathf.Sqrt(sqrMagnitude); } }
+        public Vector3 normalized
+        {
+            get
+            {
+                float m = magnitude;
+                return m > 1e-9f ? new Vector3(x / m, y / m, z / m) : zero;
+            }
+        }
         public static Vector3 operator *(Vector3 a, float b) { return new Vector3(a.x * b, a.y * b, a.z * b); }
         public static Vector3 operator -(Vector3 a, Vector3 b) { return new Vector3(a.x - b.x, a.y - b.y, a.z - b.z); }
         public static Vector3 operator +(Vector3 a, Vector3 b) { return new Vector3(a.x + b.x, a.y + b.y, a.z + b.z); }
@@ -109,17 +118,57 @@ namespace UnityEngine
         public static Color white { get { return new Color(1, 1, 1); } }
     }
 
+    /// <summary>
+    /// Really implemented, not stubbed to dummy values. The gameplay logic is pure maths
+    /// and is unit-tested against these, so a fake Sin would make the tests meaningless.
+    /// </summary>
     public static class Mathf
     {
-        public const float PI = 3.14159265f;
-        public static float Sin(float f) { return 0f; }
-        public static float Cos(float f) { return 0f; }
+        public const float PI = 3.14159265358979f;
+        public const float Deg2Rad = PI / 180f;
+        public const float Rad2Deg = 180f / PI;
+        public const float Epsilon = 1.401298E-45f;
+
+        public static float Sin(float f) { return (float)System.Math.Sin(f); }
+        public static float Cos(float f) { return (float)System.Math.Cos(f); }
+        public static float Sqrt(float f) { return (float)System.Math.Sqrt(f); }
+        public static float Atan2(float y, float x) { return (float)System.Math.Atan2(y, x); }
+        public static float Pow(float f, float p) { return (float)System.Math.Pow(f, p); }
         public static float Min(float a, float b) { return a < b ? a : b; }
         public static float Max(float a, float b) { return a > b ? a : b; }
-        public static float Abs(float f) { return f < 0 ? -f : f; }
-        public static float Clamp(float v, float min, float max) { return v; }
-        public static float Clamp01(float v) { return v; }
-        public static float MoveTowards(float current, float target, float maxDelta) { return target; }
+        public static int Min(int a, int b) { return a < b ? a : b; }
+        public static int Max(int a, int b) { return a > b ? a : b; }
+        public static float Abs(float f) { return f < 0f ? -f : f; }
+        public static float Sign(float f) { return f < 0f ? -1f : 1f; }
+        public static int FloorToInt(float f) { return (int)System.Math.Floor(f); }
+        public static float Repeat(float t, float length) { return t - (float)System.Math.Floor(t / length) * length; }
+        public static float Clamp(float v, float min, float max) { return v < min ? min : (v > max ? max : v); }
+        public static float Clamp01(float v) { return v < 0f ? 0f : (v > 1f ? 1f : v); }
+        public static float Lerp(float a, float b, float t) { return a + (b - a) * Clamp01(t); }
+        public static float LerpAngle(float a, float b, float t)
+        {
+            float delta = Repeat(b - a, 360f);
+            if (delta > 180f) delta -= 360f;
+            return a + delta * Clamp01(t);
+        }
+        public static float MoveTowards(float current, float target, float maxDelta)
+        {
+            if (Abs(target - current) <= maxDelta) return target;
+            return current + Sign(target - current) * maxDelta;
+        }
+        public static float MoveTowardsAngle(float current, float target, float maxDelta)
+        {
+            float delta = Repeat(target - current, 360f);
+            if (delta > 180f) delta -= 360f;
+            return current + Clamp(delta, -maxDelta, maxDelta);
+        }
+        public static bool Approximately(float a, float b) { return Abs(b - a) < 1e-5f; }
+        public static float DeltaAngle(float current, float target)
+        {
+            float delta = Repeat(target - current, 360f);
+            if (delta > 180f) delta -= 360f;
+            return delta;
+        }
     }
 
     public static class Debug
@@ -233,6 +282,12 @@ namespace UnityEngine
 
     [AttributeUsage(AttributeTargets.Field)]
     public class RangeAttribute : Attribute { public RangeAttribute(float min, float max) { } }
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class Header : Attribute { public Header(string header) { } }
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class HideInInspector : Attribute { }
 }
 
 namespace UnityEngine.Rendering
