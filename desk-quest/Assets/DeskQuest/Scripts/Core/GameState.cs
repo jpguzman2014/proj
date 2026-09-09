@@ -1,8 +1,7 @@
 namespace DeskQuest.Core
 {
     /// <summary>
-    /// States for Milestone 1. Later milestones add Playing and Complete after Placed;
-    /// the flow up to Placed does not change when they do.
+    /// The flow from opening the app to finishing a level.
     /// </summary>
     public enum GameState
     {
@@ -17,6 +16,12 @@ namespace DeskQuest.Core
 
         /// <summary>The play area is anchored to the chosen surface.</summary>
         Placed,
+
+        /// <summary>The level is running: the player is moving the character and tidying the desk.</summary>
+        Playing,
+
+        /// <summary>The character reached the treasure.</summary>
+        Complete,
 
         /// <summary>The device cannot run AR, or the session failed. Terminal for this run.</summary>
         Unsupported

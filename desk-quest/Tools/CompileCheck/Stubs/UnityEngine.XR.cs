@@ -58,6 +58,10 @@ namespace UnityEngine.XR.ARFoundation
         public PlaneAlignment alignment { get { return PlaneAlignment.None; } }
         public Vector2 size { get { return Vector2.zero; } }
         public Vector3 center { get { return Vector3.zero; } }
+        public Unity.Collections.NativeArray<Vector2> boundary
+        {
+            get { return new Unity.Collections.NativeArray<Vector2>(); }
+        }
     }
 
     public class ARAnchor : ARTrackable { }
@@ -106,5 +110,19 @@ namespace Unity.XR.CoreUtils
         public Camera Camera { get; set; }
         public GameObject CameraFloorOffsetObject { get; set; }
         public Transform TrackablesParent { get { return null; } }
+    }
+}
+
+namespace Unity.Collections
+{
+    using UnityEngine;
+
+    /// <summary>Only the read surface the occupancy probe uses.</summary>
+    public struct NativeArray<T>
+    {
+        public int Length { get { return 0; } }
+        public bool IsCreated { get { return false; } }
+        public T this[int index] { get { return default(T); } set { } }
+        public void Dispose() { }
     }
 }

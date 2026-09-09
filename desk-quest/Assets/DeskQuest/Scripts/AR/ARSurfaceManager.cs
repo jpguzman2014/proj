@@ -81,27 +81,39 @@ namespace DeskQuest.AR
         }
 
         /// <summary>
-        /// Stops the search and hides the plane overlay. Called once the desk is chosen:
-        /// leaving detection running would keep redrawing planes over the play area and
-        /// keep spending battery on tracking work the game no longer needs.
+        /// Hides the plane overlay once the desk is chosen, so the player sees their real
+        /// desk and the game on it rather than a blue sheet over everything.
+        ///
+        /// Detection itself keeps running, which is deliberate and costs battery. The
+        /// change detector's only signal is the desk plane growing into the space a real
+        /// object used to occupy, so switching the plane manager off here would silently
+        /// disable the mechanic the whole game is built on.
         /// </summary>
-        public void StopDetection()
+        public void EnterPlayMode()
         {
             SetPlanesVisible(false);
-            m_PlaneManager.enabled = false;
         }
 
-        /// <summary>Restarts the search, for the Rescan button.</summary>
+        /// <summary>Shows the plane overlay again, for the rescan flow.</summary>
         public void ResumeDetection()
         {
             m_PlaneManager.enabled = true;
             SetPlanesVisible(true);
         }
 
+        /// <summary>
+        /// Shows or hides the plane overlay by switching renderers, not by deactivating
+        /// the plane objects. A deactivated plane stops receiving geometry updates, and
+        /// the change detector reads that geometry.
+        /// </summary>
         public void SetPlanesVisible(bool visible)
         {
             foreach (ARPlane plane in m_PlaneManager.trackables)
-                plane.gameObject.SetActive(visible);
+            {
+                Renderer[] renderers = plane.GetComponentsInChildren<Renderer>(true);
+                for (int i = 0; i < renderers.Length; i++)
+                    renderers[i].enabled = visible;
+            }
         }
     }
 }

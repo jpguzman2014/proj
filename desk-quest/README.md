@@ -7,16 +7,27 @@ turn real clutter into obstacles the player clears by tidying up for real.
 This is a technical proof of concept, not a product. It has no accounts, no backend, no
 analytics, no ads and no paid AI service, and it is built so it stays that way.
 
-**Status: Milestone 1 complete, awaiting device testing.** See `MILESTONES.md`.
+**Status: Milestones 1 to 7 written, none tested on a phone.** See `MILESTONES.md`.
 
 ## Before you start: this repository has no Unity in it
 
 The container this code was written in has no Unity installation, no .NET SDK and no
 Android SDK, and its network policy blocks the Unity download hosts. Unity could not be
-installed, so **no Unity build has ever been run on this code**. What was run is a
-stub-based type check (`Tools/CompileCheck`), which catches syntax and signature errors
-but cannot stand in for a real build. Expect to fix small things the first time you open
-the project. Read `Tools/CompileCheck/README.md` for exactly what was and was not checked.
+installed, so **no Unity build has ever been run on this code and it has never run on a
+phone**.
+
+Two things were run in its place:
+
+- A stub-based type check across both Unity input backends, which catches syntax and
+  signature errors but is not a build.
+- 25 unit tests over the movement rules and the level layout, which are real tests. The
+  movement solver has no Unity dependency, so walking, jumping, crouching under
+  overhangs, climbing, vaulting and obstacle clearing are genuinely verified, as is the
+  fact that the two barriers cannot be walked around or jumped over.
+
+What neither can tell you is whether the AR half works, or whether any of it feels good
+in the hand. Expect to fix small things the first time you open the project. Read
+`Tools/CompileCheck/README.md` for exactly what was and was not checked.
 
 Everything below has to happen on a machine with Unity installed.
 
@@ -80,35 +91,68 @@ developer account for signing, and ARKit ticked under XR Plug-in Management for 
 camera permission string is set for you. Android is the faster route to a first test and
 is what the setup steps above assume.
 
-## Testing Milestone 1 on the phone
+## Testing on the phone
 
-Milestone 1 is: open the app, find a desk, tap it, and get a virtual object that stays
-put. There is no character yet.
+Before you start, put two or three small objects on the desk: a book, a toy, a pencil
+case. The game needs real clutter to work with, and a bare desk makes the last step
+impossible to test.
+
+**Finding the desk.**
 
 1. **Launch.** The camera feed fills the screen behind the interface. Android asks for
    camera permission the first time; allow it. Header reads DESK QUEST.
 2. **Scan.** Status reads "Point your camera at your desk." Point at the desk and move
-   the phone slowly side to side over it. A faint blue overlay should spread across the
-   surface within a few seconds. Plain, shiny or dark surfaces take longer, and a plain
-   white desk may never resolve; put a book or a mug on it and try again.
-3. **Aim.** Once the surface is big enough, status reads "Desk found. Tap it to start."
-   and a ring appears under the centre of the screen. It is amber while the surface under
-   it is too small, green when it is usable.
-4. **Place.** Tap the desk. The plane overlay disappears, a green rectangle marks the
-   play area, and a blue cube sits at its centre turning slowly.
-5. **The real test: anchoring.** Walk around the desk. Crouch. Look away, then look back.
-   Move a metre away and return. The cube must stay on the same spot on the real desk,
-   the right way up and the right size. Some drift when you look away and back is normal.
-   The cube sliding across the desk, floating, or sinking through it is not.
-6. **Rescan.** Press "Choose a different desk". Scanning restarts and you can place
-   somewhere else.
+   the phone slowly side to side. A faint blue overlay should spread across the surface
+   within a few seconds. Plain, shiny or dark surfaces take longer; a bare white desk may
+   never resolve, which is another reason to have objects on it.
+3. **Aim and place.** Once the surface is big enough the status changes and a ring appears
+   under the centre of the screen, amber when the surface is too small and green when it
+   is usable. Tap the desk.
+
+**Anchoring, which everything else depends on.**
+
+4. Walk around the desk, crouch, look away and back, step a metre away and return. The
+   character and the blocks must stay on the same spot on the real desk, upright and the
+   same size. Some drift when you look away and back is normal. Sliding across the desk,
+   floating, or sinking through it is not.
+
+**Playing.**
+
+5. **Move.** The four direction buttons walk the stick man. UP is away from you, whichever
+   way you are holding the phone, because the play area is oriented at the moment you tap.
+6. **Actions.** Hold RUN with a direction to sprint. Hold CROUCH with a direction to
+   crouch-walk. JUMP over the amber block. CLIMB next to the green block to climb it, and
+   press CLIMB in open space to confirm it gives a small blip rather than doing nothing
+   silently.
+7. **The red barriers.** These span the whole desk and cannot be jumped, climbed or walked
+   around. Each one has a red square drawn on the desk in front of it. The objective line
+   names what to take off that square.
+
+**The mechanic the whole thing is for.**
+
+8. **Tidy up.** Physically take the real object off the marked square and put it somewhere
+   else. Keep the camera pointed at that patch of desk for a few seconds afterwards, so the
+   tracker can see the surface that was underneath. The square should tint from red towards
+   amber as the desk becomes visible, then the barrier shrinks away with a sound.
+9. **Progress.** Walk the stick man through the gap and repeat for the second barrier.
+10. **Finish.** Reach the treasure. The character celebrates and DESK QUEST COMPLETE
+    appears.
+
+If a barrier does not clear after about 25 seconds of the desk being genuinely clear, the
+objective line changes to offer a fallback and you can tap the red block to clear it by
+hand. That fallback exists so a level is never unfinishable. **If you find yourself using
+it every time, the change detection is not working on your desk, and that is the single
+most important thing to tell me.**
 
 ### What to report back
 
-Whether each of the six steps did what it says, the phone model and Android version, and
-for anything that failed, what you saw instead. If nothing renders at all, or the screen
-is black behind the interface, that is an XR Plug-in Management or graphics API problem
-rather than a game bug; send the console output from **Build And Run**.
+- Phone model and Android version.
+- Which of the ten steps worked and which did not, and what you saw instead.
+- For step 8 especially: did the square ever tint? Did the barrier clear on its own, and
+  roughly how long did it take? Did anything clear that should not have?
+- If nothing renders at all, or the screen is black behind the interface, that is an XR
+  Plug-in Management or graphics API problem rather than a game bug. Send the console
+  output from **Build And Run**.
 
 ## Privacy
 
@@ -117,9 +161,10 @@ game reads only the resulting geometry, never image data. Nothing is written to 
 nothing is sent anywhere, and the app makes no network calls at all. There is no account,
 no profile and no identifier.
 
-Later milestones detect whether the desk has changed. That comparison is designed to run
-on tracked geometry on the device, for the same reason. If a milestone ever needs
-something stronger, it will be raised before it is built, not after.
+Detecting that the desk has changed uses the plane geometry the AR session already
+produces, on the device. No camera image is read by the game, and none is stored or sent.
+There is no object recognition anywhere in the project and nothing in the interface claims
+there is.
 
 ## Layout
 
@@ -127,11 +172,20 @@ something stronger, it will be raised before it is built, not after.
 Assets/DeskQuest/
   Scripts/
     AR/         plane detection, tap-to-place, the anchored play area
+    Gameplay/   movement, obstacles, level layout. No Unity scene types, so it is testable
+    Character/  the stick man: built from primitives, animated from code
+    Obstacles/  obstacle and goal objects, and the clear-zone markers
+    Detection/  reading change in the real desk from plane geometry
     Core/       game state and the flow that drives it
     Input/      touch reading that works under either Unity input backend
-    UI/         the heads-up display, built from code
+    UI/         heads-up display and on-screen controls, built from code
+    Audio/      sound effects generated as waveforms at runtime
     Common/     materials, colours, procedural meshes
   Editor/       scene builder and player settings, run from the Tools menu
 Tools/
-  CompileCheck/ type-check without Unity; read its README for what it proves
+  CompileCheck/ type check and unit tests without Unity; read its README for what it proves
 ```
+
+There are no prefabs, materials, textures, models, animation clips or audio files. Every
+asset is built in code at runtime, which is why the project survives being copied between
+machines and Unity versions.

@@ -4,11 +4,12 @@ using UnityEngine;
 namespace DeskQuest.AR
 {
     /// <summary>
-    /// The virtual play area built on the chosen desk surface. In Milestone 1 it is a
-    /// boundary outline plus a marker cube, which is enough to confirm by eye that the
-    /// content stays locked to the real desk as the phone moves. Later milestones add
-    /// the stick man, obstacles and goal underneath this same transform, so everything
-    /// inherits the anchor's tracking.
+    /// The virtual play area built on the chosen desk surface: a boundary outline, and
+    /// the parent that the character, obstacles and goal all hang from.
+    ///
+    /// Everything being under one transform is what keeps the game stuck to the real
+    /// desk. The anchor corrects this transform as tracking improves, and the whole level
+    /// moves with it without any gameplay code knowing that happened.
     /// </summary>
     public class DeskPlayArea : MonoBehaviour
     {
@@ -16,12 +17,9 @@ namespace DeskQuest.AR
         [SerializeField] Vector2 m_Size = new Vector2(0.6f, 0.4f);
 
         [SerializeField] float m_BoundaryLineWidth = 0.004f;
-        [SerializeField] float m_MarkerSize = 0.05f;
 
         LineRenderer m_Boundary;
-        Transform m_Marker;
         Material m_BoundaryMaterial;
-        Material m_MarkerMaterial;
 
         /// <summary>Play area size in metres. Read by later systems to lay out obstacles.</summary>
         public Vector2 Size { get { return m_Size; } }
@@ -34,7 +32,6 @@ namespace DeskQuest.AR
         {
             m_Size = size;
             BuildBoundary();
-            BuildMarker();
         }
 
         void BuildBoundary()
@@ -69,42 +66,10 @@ namespace DeskQuest.AR
             m_Boundary.SetPosition(3, new Vector3(-halfX, surfaceOffset, halfZ));
         }
 
-        void BuildMarker()
-        {
-            GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            marker.name = "PlacementMarker";
-            marker.transform.SetParent(transform, false);
-            marker.transform.localPosition = new Vector3(0f, m_MarkerSize * 0.5f, 0f);
-            marker.transform.localScale = Vector3.one * m_MarkerSize;
-
-            // The collider is dead weight until there is a character to collide with it.
-            Collider markerCollider = marker.GetComponent<Collider>();
-            if (markerCollider != null)
-                Destroy(markerCollider);
-
-            MeshRenderer renderer = marker.GetComponent<MeshRenderer>();
-            m_MarkerMaterial = MaterialLibrary.CreateOpaque(Palette.DeskMarker);
-            renderer.sharedMaterial = m_MarkerMaterial;
-            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            renderer.receiveShadows = false;
-
-            m_Marker = marker.transform;
-        }
-
-        void Update()
-        {
-            // A slow spin makes it obvious at a glance that the object is a live 3D
-            // object sitting on the desk and not a still image pasted over the camera.
-            if (m_Marker != null)
-                m_Marker.Rotate(Vector3.up, 45f * Time.deltaTime, Space.Self);
-        }
-
         void OnDestroy()
         {
             if (m_BoundaryMaterial != null)
                 Destroy(m_BoundaryMaterial);
-            if (m_MarkerMaterial != null)
-                Destroy(m_MarkerMaterial);
         }
     }
 }

@@ -97,6 +97,12 @@ namespace UnityEngine.EventSystems
         public bool IsPointerOverGameObject() { return false; }
     }
 
+    public interface IEventSystemHandler { }
+    public interface IPointerDownHandler : IEventSystemHandler { void OnPointerDown(PointerEventData eventData); }
+    public interface IPointerUpHandler : IEventSystemHandler { void OnPointerUp(PointerEventData eventData); }
+    public interface IPointerClickHandler : IEventSystemHandler { void OnPointerClick(PointerEventData eventData); }
+    public interface IPointerExitHandler : IEventSystemHandler { void OnPointerExit(PointerEventData eventData); }
+
     public class BaseInputModule : MonoBehaviour { }
     public class PointerInputModule : BaseInputModule { }
     public class StandaloneInputModule : PointerInputModule { }

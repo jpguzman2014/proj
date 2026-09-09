@@ -55,10 +55,10 @@ run_pass "runtime (new Input System)" "ENABLE_INPUT_SYSTEM" $(stub_files) $(runt
 run_pass "runtime (legacy input)"     ""                    $(stub_files) $(runtime_files)
 run_pass "runtime + editor"           "ENABLE_INPUT_SYSTEM" $(stub_files) $(runtime_files) $(editor_files)
 
-# Movement rules are pure maths with no Unity dependency, so they can be genuinely
-# tested here rather than only compiled. This is the one part of the project that is
-# verified rather than merely checked.
-echo "--- motor unit tests ---"
+# The movement rules and the level layout are pure maths with no Unity dependency, so
+# they can be genuinely tested here rather than only compiled. This is the one part of
+# the project that is verified rather than merely checked.
+echo "--- unit tests ---"
 TEST_EXE="$OUT/MotorTests.exe"
 if mcs -target:exe -nologo -langversion:latest -out:"$TEST_EXE" \
        $(stub_files) $(find "$ROOT/Assets/DeskQuest/Scripts/Gameplay" -name '*.cs' | sort) \
@@ -75,7 +75,7 @@ fi
 
 echo
 if [ "$failures" -eq 0 ]; then
-    echo "All passes compiled cleanly and all motor tests passed."
+    echo "All passes compiled cleanly and all unit tests passed."
 else
     echo "$failures check(s) failed."
 fi

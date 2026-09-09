@@ -22,6 +22,8 @@ namespace UnityEngine
         public Transform transform { get { return null; } }
         public T GetComponent<T>() where T : Component { return null; }
         public Component GetComponent(Type type) { return null; }
+        public T[] GetComponentsInChildren<T>(bool includeInactive) where T : Component { return new T[0]; }
+        public T GetComponentInParent<T>() where T : Component { return null; }
     }
 
     public class Behaviour : Component { public bool enabled { get; set; } }
@@ -48,11 +50,17 @@ namespace UnityEngine
         public Quaternion rotation { get; set; }
         public Vector3 localPosition { get; set; }
         public Vector3 localScale { get; set; }
+        public Quaternion localRotation { get; set; }
+        public int childCount { get { return 0; } }
         public Vector3 forward { get { return Vector3.zero; } }
+        public Vector3 up { get { return Vector3.up; } }
+        public Vector3 right { get { return Vector3.zero; } }
         public Transform parent { get; set; }
         public void SetParent(Transform parent, bool worldPositionStays) { }
         public void SetPositionAndRotation(Vector3 position, Quaternion rotation) { }
         public void Rotate(Vector3 axis, float angle, Space relativeTo) { }
+        public Vector3 TransformPoint(Vector3 position) { return position; }
+        public Vector3 InverseTransformPoint(Vector3 position) { return position; }
         public IEnumerator GetEnumerator() { yield break; }
     }
 
@@ -80,6 +88,7 @@ namespace UnityEngine
         public static Vector3 zero { get { return new Vector3(0, 0, 0); } }
         public static Vector3 one { get { return new Vector3(1, 1, 1); } }
         public static Vector3 up { get { return new Vector3(0, 1, 0); } }
+        public static float Dot(Vector3 a, Vector3 b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
         public float sqrMagnitude { get { return x * x + y * y + z * z; } }
         public float magnitude { get { return Mathf.Sqrt(sqrMagnitude); } }
         public Vector3 normalized
@@ -195,9 +204,18 @@ namespace UnityEngine
         public static bool isPlaying { get { return false; } }
     }
 
+    public struct Ray
+    {
+        public Vector3 origin;
+        public Vector3 direction;
+        public Ray(Vector3 origin, Vector3 direction) { this.origin = origin; this.direction = direction; }
+        public Vector3 GetPoint(float distance) { return origin + direction * distance; }
+    }
+
     public class Camera : Behaviour
     {
         public static Camera main { get { return null; } }
+        public Ray ScreenPointToRay(Vector3 position) { return new Ray(); }
         public float nearClipPlane { get; set; }
         public float farClipPlane { get; set; }
     }
@@ -264,8 +282,22 @@ namespace UnityEngine
         public static Font CreateDynamicFontFromOSFont(string fontname, int size) { return null; }
     }
 
-    public class AudioClip : Object { }
-    public class AudioSource : Behaviour { }
+    public class AudioClip : Object
+    {
+        public static AudioClip Create(string name, int lengthSamples, int channels, int frequency, bool stream) { return null; }
+        public bool SetData(float[] data, int offsetSamples) { return true; }
+        public int samples { get { return 0; } }
+    }
+
+    public class AudioSource : Behaviour
+    {
+        public AudioClip clip { get; set; }
+        public float volume { get; set; }
+        public bool playOnAwake { get; set; }
+        public bool loop { get; set; }
+        public void Play() { }
+        public void PlayOneShot(AudioClip clip, float volumeScale) { }
+    }
 
     [AttributeUsage(AttributeTargets.Field)]
     public class SerializeField : Attribute { }

@@ -14,36 +14,28 @@ static class MotorTests
     const float Dt = 1f / 60f;
     static readonly Vector2 PlayArea = new Vector2(0.6f, 0.4f);
 
-    static int s_Failures;
-
-    static void Main()
+    public static void RunAll()
     {
-        Run("falls to the desk under gravity", FallsToDesk);
-        Run("walks forward at roughly walk speed", WalksForward);
-        Run("running is faster than walking", RunIsFaster);
-        Run("diagonal is not faster than straight", DiagonalNotFaster);
-        Run("cannot leave the play area", StaysInsidePlayArea);
-        Run("a wall blocks movement", WallBlocks);
-        Run("slides along a wall hit at an angle", SlidesAlongWall);
-        Run("steps up onto a kerb without jumping", StepsUpOntoKerb);
-        Run("jumps and lands back on the desk", JumpsAndLands);
-        Run("crouching fits under an overhang", CrouchFitsUnderOverhang);
-        Run("standing does not fit under an overhang", StandingBlockedByOverhang);
-        Run("stays crouched while under an overhang", StaysCrouchedUnderOverhang);
-        Run("climbs onto a climbable block", ClimbsOntoBlock);
-        Run("vaults over a thin block", VaultsThinBlock);
-        Run("climb with nothing in reach is rejected", ClimbRejectedWithNothingInReach);
-        Run("a cleared obstacle stops blocking", ClearedObstacleStopsBlocking);
-        Run("falls when the block underfoot is cleared", FallsWhenSupportCleared);
-        Run("landing is reported once", LandingReportedOnce);
+        TestRunner.Suite("movement");
+        TestRunner.Run("falls to the desk under gravity", FallsToDesk);
+        TestRunner.Run("walks forward at roughly walk speed", WalksForward);
+        TestRunner.Run("running is faster than walking", RunIsFaster);
+        TestRunner.Run("diagonal is not faster than straight", DiagonalNotFaster);
+        TestRunner.Run("cannot leave the play area", StaysInsidePlayArea);
+        TestRunner.Run("a wall blocks movement", WallBlocks);
+        TestRunner.Run("slides along a wall hit at an angle", SlidesAlongWall);
+        TestRunner.Run("steps up onto a kerb without jumping", StepsUpOntoKerb);
+        TestRunner.Run("jumps and lands back on the desk", JumpsAndLands);
+        TestRunner.Run("crouching fits under an overhang", CrouchFitsUnderOverhang);
+        TestRunner.Run("standing does not fit under an overhang", StandingBlockedByOverhang);
+        TestRunner.Run("stays crouched while under an overhang", StaysCrouchedUnderOverhang);
+        TestRunner.Run("climbs onto a climbable block", ClimbsOntoBlock);
+        TestRunner.Run("vaults over a thin block", VaultsThinBlock);
+        TestRunner.Run("climb with nothing in reach is rejected", ClimbRejectedWithNothingInReach);
+        TestRunner.Run("a cleared obstacle stops blocking", ClearedObstacleStopsBlocking);
+        TestRunner.Run("falls when the block underfoot is cleared", FallsWhenSupportCleared);
+        TestRunner.Run("landing is reported once", LandingReportedOnce);
 
-        Console.WriteLine();
-        if (s_Failures == 0)
-            Console.WriteLine("All motor tests passed.");
-        else
-            Console.WriteLine(s_Failures + " motor test(s) failed.");
-
-        Environment.Exit(s_Failures);
     }
 
     // --- tests ---
@@ -54,9 +46,9 @@ static class MotorTests
         motor.Teleport(new Vector3(0f, 0.05f, 0f), 0f);
         Simulate(motor, MotorInput(), NoObstacles(), 1.5f);
 
-        AreClose(0f, motor.Position.y, 0.001f, "resting height");
-        IsTrue(motor.IsGrounded, "grounded after landing");
-        AreEqual(LocomotionState.Idle, motor.State, "state once still");
+        TestRunner.AreClose(0f, motor.Position.y, 0.001f, "resting height");
+        TestRunner.IsTrue(motor.IsGrounded, "grounded after landing");
+        TestRunner.AreEqual(LocomotionState.Idle, motor.State, "state once still");
     }
 
     static void WalksForward()
@@ -70,8 +62,8 @@ static class MotorTests
 
         // One second of walking should cover about one second of walk speed. The
         // tolerance absorbs the single frame spent turning to face the direction.
-        AreClose(settings.WalkSpeed, motor.Position.z, settings.WalkSpeed * 0.1f, "distance in one second");
-        AreEqual(LocomotionState.Walk, motor.State, "state while walking");
+        TestRunner.AreClose(settings.WalkSpeed, motor.Position.z, settings.WalkSpeed * 0.1f, "distance in one second");
+        TestRunner.AreEqual(LocomotionState.Walk, motor.State, "state while walking");
     }
 
     static void RunIsFaster()
@@ -87,8 +79,8 @@ static class MotorTests
         Simulate(walker, walk, NoObstacles(), 1f);
         Simulate(runner, run, NoObstacles(), 1f);
 
-        IsTrue(runner.Position.z > walker.Position.z * 1.4f, "running covers more ground");
-        AreEqual(LocomotionState.Run, runner.State, "state while running");
+        TestRunner.IsTrue(runner.Position.z > walker.Position.z * 1.4f, "running covers more ground");
+        TestRunner.AreEqual(LocomotionState.Run, runner.State, "state while running");
     }
 
     static void DiagonalNotFaster()
@@ -109,7 +101,7 @@ static class MotorTests
         float straightDistance = Length(straight.Position);
         float diagonalDistance = Length(diagonal.Position);
 
-        IsTrue(diagonalDistance <= straightDistance * 1.05f,
+        TestRunner.IsTrue(diagonalDistance <= straightDistance * 1.05f,
             "diagonal distance " + diagonalDistance + " is not more than straight " + straightDistance);
     }
 
@@ -124,7 +116,7 @@ static class MotorTests
         Simulate(motor, input, NoObstacles(), 20f);
 
         float limit = PlayArea.y * 0.5f - settings.Radius;
-        AreClose(limit, motor.Position.z, 0.0005f, "stopped at the boundary");
+        TestRunner.AreClose(limit, motor.Position.z, 0.0005f, "stopped at the boundary");
     }
 
     static void WallBlocks()
@@ -139,8 +131,8 @@ static class MotorTests
 
         Simulate(motor, input, obstacles, 5f);
 
-        IsTrue(motor.Position.z < 0.07f, "stopped short of the wall, at z=" + motor.Position.z);
-        AreClose(0f, motor.Position.y, 0.001f, "did not climb the wall");
+        TestRunner.IsTrue(motor.Position.z < 0.07f, "stopped short of the wall, at z=" + motor.Position.z);
+        TestRunner.AreClose(0f, motor.Position.y, 0.001f, "did not climb the wall");
     }
 
     static void SlidesAlongWall()
@@ -156,7 +148,7 @@ static class MotorTests
 
         Simulate(motor, input, obstacles, 2f);
 
-        IsTrue(motor.Position.x > 0.02f, "kept moving sideways along the wall, x=" + motor.Position.x);
+        TestRunner.IsTrue(motor.Position.x > 0.02f, "kept moving sideways along the wall, x=" + motor.Position.x);
     }
 
     static void StepsUpOntoKerb()
@@ -174,8 +166,8 @@ static class MotorTests
 
         Simulate(motor, input, obstacles, 2f);
 
-        AreClose(kerbTop, motor.Position.y, 0.001f, "standing on the kerb");
-        IsTrue(motor.Position.z > 0.06f, "walked onto it rather than stopping, z=" + motor.Position.z);
+        TestRunner.AreClose(kerbTop, motor.Position.y, 0.001f, "standing on the kerb");
+        TestRunner.IsTrue(motor.Position.z > 0.06f, "walked onto it rather than stopping, z=" + motor.Position.z);
     }
 
     static void JumpsAndLands()
@@ -185,8 +177,8 @@ static class MotorTests
         jump.JumpPressed = true;
 
         motor.Step(jump, NoObstacles(), Dt);
-        IsTrue(!motor.IsGrounded, "left the ground");
-        AreEqual(LocomotionState.Jump, motor.State, "state going up");
+        TestRunner.IsTrue(!motor.IsGrounded, "left the ground");
+        TestRunner.AreEqual(LocomotionState.Jump, motor.State, "state going up");
 
         float peak = 0f;
         MotorInput idle = MotorInput();
@@ -199,9 +191,9 @@ static class MotorTests
                 break;
         }
 
-        IsTrue(peak > 0.02f, "cleared a useful height, peaked at " + peak);
-        IsTrue(motor.IsGrounded, "landed again");
-        AreClose(0f, motor.Position.y, 0.001f, "back on the desk");
+        TestRunner.IsTrue(peak > 0.02f, "cleared a useful height, peaked at " + peak);
+        TestRunner.IsTrue(motor.IsGrounded, "landed again");
+        TestRunner.AreClose(0f, motor.Position.y, 0.001f, "back on the desk");
     }
 
     static void CrouchFitsUnderOverhang()
@@ -216,8 +208,8 @@ static class MotorTests
 
         Simulate(motor, input, obstacles, 6f);
 
-        IsTrue(motor.Position.z > 0.13f, "passed under the overhang, z=" + motor.Position.z);
-        AreEqual(LocomotionState.CrouchWalk, motor.State, "state while crouch-walking");
+        TestRunner.IsTrue(motor.Position.z > 0.13f, "passed under the overhang, z=" + motor.Position.z);
+        TestRunner.AreEqual(LocomotionState.CrouchWalk, motor.State, "state while crouch-walking");
     }
 
     static void StandingBlockedByOverhang()
@@ -231,7 +223,7 @@ static class MotorTests
 
         Simulate(motor, input, obstacles, 4f);
 
-        IsTrue(motor.Position.z < 0.07f, "stopped at the overhang, z=" + motor.Position.z);
+        TestRunner.IsTrue(motor.Position.z < 0.07f, "stopped at the overhang, z=" + motor.Position.z);
     }
 
     static void StaysCrouchedUnderOverhang()
@@ -246,13 +238,13 @@ static class MotorTests
 
         // Get under it, then let go of crouch while still underneath.
         Simulate(motor, crouchForward, obstacles, 3f);
-        IsTrue(motor.Position.z > 0.075f && motor.Position.z < 0.105f,
+        TestRunner.IsTrue(motor.Position.z > 0.075f && motor.Position.z < 0.105f,
             "positioned under the overhang, z=" + motor.Position.z);
 
         MotorInput released = MotorInput();
         Simulate(motor, released, obstacles, 0.5f);
 
-        IsTrue(motor.IsCrouching, "stayed crouched rather than standing into the overhang");
+        TestRunner.IsTrue(motor.IsCrouching, "stayed crouched rather than standing into the overhang");
     }
 
     static void ClimbsOntoBlock()
@@ -267,13 +259,13 @@ static class MotorTests
         MotorInput climb = MotorInput();
         climb.ClimbPressed = true;
         motor.Step(climb, obstacles, Dt);
-        IsTrue(motor.IsClimbing, "climb started");
-        IsTrue(!motor.ClimbRejected, "climb was not rejected");
+        TestRunner.IsTrue(motor.IsClimbing, "climb started");
+        TestRunner.IsTrue(!motor.ClimbRejected, "climb was not rejected");
 
         Simulate(motor, MotorInput(), obstacles, settings.ClimbDuration + 0.5f);
 
-        AreClose(0.03f, motor.Position.y, 0.002f, "ended up on top of the block");
-        IsTrue(motor.IsGrounded, "grounded on top");
+        TestRunner.AreClose(0.03f, motor.Position.y, 0.002f, "ended up on top of the block");
+        TestRunner.IsTrue(motor.IsGrounded, "grounded on top");
     }
 
     static void VaultsThinBlock()
@@ -288,12 +280,12 @@ static class MotorTests
         MotorInput climb = MotorInput();
         climb.ClimbPressed = true;
         motor.Step(climb, obstacles, Dt);
-        IsTrue(motor.IsClimbing, "vault started");
+        TestRunner.IsTrue(motor.IsClimbing, "vault started");
 
         Simulate(motor, MotorInput(), obstacles, settings.ClimbDuration + 0.5f);
 
-        AreClose(0f, motor.Position.y, 0.002f, "landed back on the desk");
-        IsTrue(motor.Position.z > 0.05f, "ended up past the block, z=" + motor.Position.z);
+        TestRunner.AreClose(0f, motor.Position.y, 0.002f, "landed back on the desk");
+        TestRunner.IsTrue(motor.Position.z > 0.05f, "ended up past the block, z=" + motor.Position.z);
     }
 
     static void ClimbRejectedWithNothingInReach()
@@ -304,8 +296,8 @@ static class MotorTests
 
         motor.Step(climb, NoObstacles(), Dt);
 
-        IsTrue(motor.ClimbRejected, "reported that there was nothing to climb");
-        IsTrue(!motor.IsClimbing, "did not start a climb");
+        TestRunner.IsTrue(motor.ClimbRejected, "reported that there was nothing to climb");
+        TestRunner.IsTrue(!motor.IsClimbing, "did not start a climb");
     }
 
     static void ClearedObstacleStopsBlocking()
@@ -320,13 +312,13 @@ static class MotorTests
         input.MoveZ = 1f;
 
         Simulate(motor, input, obstacles, 3f);
-        IsTrue(motor.Position.z < 0.07f, "blocked while the obstacle stands");
+        TestRunner.IsTrue(motor.Position.z < 0.07f, "blocked while the obstacle stands");
 
         blocker.Cleared = true;
         obstacles[0] = blocker;
 
         Simulate(motor, input, obstacles, 3f);
-        IsTrue(motor.Position.z > 0.12f, "walked through once cleared, z=" + motor.Position.z);
+        TestRunner.IsTrue(motor.Position.z > 0.12f, "walked through once cleared, z=" + motor.Position.z);
     }
 
     static void FallsWhenSupportCleared()
@@ -339,13 +331,13 @@ static class MotorTests
         CharacterMotor motor = NewMotor();
         motor.Teleport(new Vector3(0f, 0.03f, 0.04f), 0f);
         Simulate(motor, MotorInput(), obstacles, 0.2f);
-        AreClose(0.03f, motor.Position.y, 0.001f, "standing on the platform");
+        TestRunner.AreClose(0.03f, motor.Position.y, 0.001f, "standing on the platform");
 
         platform.Cleared = true;
         obstacles[0] = platform;
 
         Simulate(motor, MotorInput(), obstacles, 1.5f);
-        AreClose(0f, motor.Position.y, 0.001f, "fell to the desk once it was cleared");
+        TestRunner.AreClose(0f, motor.Position.y, 0.001f, "fell to the desk once it was cleared");
     }
 
     static void LandingReportedOnce()
@@ -364,7 +356,7 @@ static class MotorTests
                 landings++;
         }
 
-        AreEqual(1, landings, "landing events during one jump");
+        TestRunner.AreEqual(1, landings, "landing events during one jump");
     }
 
     // --- helpers ---
@@ -408,37 +400,4 @@ static class MotorTests
         return Mathf.Sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
     }
 
-    // --- assertions ---
-
-    static void Run(string name, Action test)
-    {
-        try
-        {
-            test();
-            Console.WriteLine("  pass  " + name);
-        }
-        catch (Exception exception)
-        {
-            s_Failures++;
-            Console.WriteLine("  FAIL  " + name + ": " + exception.Message);
-        }
-    }
-
-    static void IsTrue(bool condition, string what)
-    {
-        if (!condition)
-            throw new Exception(what);
-    }
-
-    static void AreClose(float expected, float actual, float tolerance, string what)
-    {
-        if (Mathf.Abs(expected - actual) > tolerance)
-            throw new Exception(what + ": expected " + expected + " but got " + actual);
-    }
-
-    static void AreEqual(object expected, object actual, string what)
-    {
-        if (!expected.Equals(actual))
-            throw new Exception(what + ": expected " + expected + " but got " + actual);
-    }
 }

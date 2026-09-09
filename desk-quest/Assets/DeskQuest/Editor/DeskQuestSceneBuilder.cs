@@ -1,6 +1,8 @@
 using System.IO;
 using DeskQuest.AR;
+using DeskQuest.Audio;
 using DeskQuest.Core;
+using DeskQuest.Detection;
 using DeskQuest.UI;
 using Unity.XR.CoreUtils;
 using UnityEditor;
@@ -65,12 +67,17 @@ namespace DeskQuest.EditorTools
 
             UIManager ui = EnsureComponent<UIManager>(root);
             ARDeskPlacement placement = EnsureComponent<ARDeskPlacement>(root);
+            GameAudio audio = EnsureComponent<GameAudio>(root);
+            EnvironmentChangeDetector detector = EnsureComponent<EnvironmentChangeDetector>(root);
+            GameplayDirector director = EnsureComponent<GameplayDirector>(root);
             ARGameManager gameManager = EnsureComponent<ARGameManager>(root);
 
             PlacementIndicator indicator = EnsureIndicator(root.transform);
 
             WirePlacement(placement, raycastManager, anchorManager, origin.Camera, indicator);
-            WireGameManager(gameManager, surfaceManager, placement, ui);
+            WireDetector(detector, planeManager);
+            WireDirector(director, detector, audio);
+            WireGameManager(gameManager, surfaceManager, placement, ui, director, planeManager, origin.Camera);
 
             EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
 
@@ -241,12 +248,31 @@ namespace DeskQuest.EditorTools
         }
 
         static void WireGameManager(ARGameManager gameManager, ARSurfaceManager surfaceManager,
-            ARDeskPlacement placement, UIManager ui)
+            ARDeskPlacement placement, UIManager ui, GameplayDirector director,
+            ARPlaneManager planeManager, Camera camera)
         {
             SerializedObject serialized = new SerializedObject(gameManager);
             SetReference(serialized, "m_SurfaceManager", surfaceManager);
             SetReference(serialized, "m_Placement", placement);
             SetReference(serialized, "m_UI", ui);
+            SetReference(serialized, "m_Director", director);
+            SetReference(serialized, "m_PlaneManager", planeManager);
+            SetReference(serialized, "m_ARCamera", camera);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        static void WireDirector(GameplayDirector director, EnvironmentChangeDetector detector, GameAudio audio)
+        {
+            SerializedObject serialized = new SerializedObject(director);
+            SetReference(serialized, "m_Detector", detector);
+            SetReference(serialized, "m_Audio", audio);
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        static void WireDetector(EnvironmentChangeDetector detector, ARPlaneManager planeManager)
+        {
+            SerializedObject serialized = new SerializedObject(detector);
+            SetReference(serialized, "m_PlaneManager", planeManager);
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
