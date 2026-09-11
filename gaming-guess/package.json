@@ -1,0 +1,31 @@
+{
+  "name": "gaming-guess",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Gaming Guess - a gaming guessing, trivia and party platform. No login, PWA, QR multiplayer.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit false --dry 2>/dev/null || tsc --noEmit -p tsconfig.app.json",
+    "test": "node scripts/run-tests.mjs",
+    "server": "node server/index.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "import:media": "node scripts/import-media.mjs",
+    "dev:media": "node scripts/make-dev-media.mjs"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "ws": "^8.18.0"
+  }
+}

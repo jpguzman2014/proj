@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+
+# Generated media. Real images come from `npm run import:media`;
+# placeholders from `npm run dev:media`. Neither is committed.
+public/media/*
+!public/media/.gitkeep
