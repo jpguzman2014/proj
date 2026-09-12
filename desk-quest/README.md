@@ -86,6 +86,23 @@ yourself; the AR template has it ticked already.
 Enable developer mode and USB debugging on the phone, connect it, then **File > Build
 Settings > Android > Build And Run**.
 
+### Getting later fixes
+
+The Unity project lives outside this repository, because a Unity project contains
+generated files that cannot be produced without Unity installed. So when a fix lands here,
+the scripts have to be copied across again.
+
+```
+git pull
+.\desk-quest\Tools\sync-to-unity.ps1 -UnityProject "C:\path\to\your\unity\project"
+```
+
+Copying the folder by hand in Explorer works too. Choose replace when Windows asks.
+**Never delete the DeskQuest folder first.** Unity stores the scene's references to your
+scripts as ids kept in .meta files alongside them; delete the folder and Unity issues new
+ids, the scene loses every component, and the game stops working with no obvious cause.
+Copying over the top leaves those files alone.
+
 ### iOS
 
 The same scripts work on iOS with no changes. It needs a Mac with Xcode, an Apple
